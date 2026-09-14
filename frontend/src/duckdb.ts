@@ -37,7 +37,7 @@ export const loadCSVIntoDuckDB = async (db: duckdb.AsyncDuckDB, file: File, tabl
         const url = URL.createObjectURL(file);
         await db.registerFileURL(file.name, url, duckdb.DuckDBDataProtocol.HTTP, false);
         const conn = await db.connect();
-        await conn.query(`CREATE OR REPLACE TABLE ${tableName} AS SELECT * FROM read_csv_auto('${file.name}', header=true, ALL_VARCHAR=true)`);
+        await conn.query(`CREATE OR REPLACE TABLE ${tableName} AS SELECT * FROM read_csv_auto('${file.name}', header=true)`);
         await conn.close();
         URL.revokeObjectURL(url);
         return true;
