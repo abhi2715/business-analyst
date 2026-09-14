@@ -77,7 +77,7 @@ const App: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: userMsg.content,
-          history: messages.map(m => ({ role: m.role, content: m.content }))
+          history: messages.map(m => ({ role: m.role === 'bot' ? 'assistant' : m.role, content: m.content }))
         }),
         signal: abortController.signal
       });
