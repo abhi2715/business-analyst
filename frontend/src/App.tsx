@@ -112,10 +112,12 @@ const App: React.FC = () => {
       }
 
       // After streaming is done, check for SQL
-      let sqlMatch = fullContent.match(/```sql\n([\s\S]*?)\n```/);
-      if (sqlMatch && db) {
+      let sqlMatches = [...fullContent.matchAll(/```(?:sql)?\n([\s\S]*?)\n```/g)];
+      const validSqls = sqlMatches.map(m => m[1].trim()).filter(sql => sql.length > 5);
+      
+      if (validSqls.length > 0 && db) {
         try {
-          const sql = sqlMatch[1];
+          const sql = validSqls[validSqls.length - 1]; // get the final intended query
           const result = await executeSQL(db, sql);
           const resultMsg: Message = {
             id: (Date.now() + 2).toString(),
@@ -150,7 +152,12 @@ const App: React.FC = () => {
   };
 
   const clearChat = () => {
-    setMessages([{ id: '1', role: 'bot', content: 'Chat history cleared. How can I assist you now?' }]);
+    const contextMsg = messages.find(m => m.id === '0');
+    if (contextMsg) {
+      setMessages([contextMsg, { id: '1', role: 'bot', content: 'Chat history cleared. How can I assist you now?' }]);
+    } else {
+      setMessages([{ id: '1', role: 'bot', content: 'Chat history cleared. How can I assist you now?' }]);
+    }
   };
 
   const handleFileUpload = async (file: File) => {
@@ -291,7 +298,7 @@ ${response.data.totalProfit ? `- Total Profit: $${response.data.totalProfit}` : 
                         {msg.role === 'bot' ? <Bot size={18} /> : <User size={18} />}
                       </div>
                       <div className="markdown-body" style={{ color: msg.isError ? '#ef4444' : 'inherit', width: '100%' }}>
-                        <ReactMarkdown rehypePlugins={[rehypeRaw]}>{msg.content}</ReactMarkdown>
+                        <ReactMarkdown rehypePlugins={[rehypeRaw]}>{msg.content.replace(/<think>[\s\S]*?(<\/think>|$)/g, '')}</ReactMarkdown>
                       </div>
                     </div>
                   </div>

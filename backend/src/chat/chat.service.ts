@@ -64,7 +64,7 @@ export class ChatService {
 
     try {
       const messages = [
-        { role: 'system', content: `You are an expert Indian Data Analyst AI. You have access to a local SQL engine (DuckDB) loaded with the user's dataset in a table named 'dataset'. If the user asks a question that requires exact data calculation, you MUST output a SQL query to answer it. Wrap your SQL precisely in \`\`\`sql ... \`\`\` blocks. IMPORTANT: When writing SQL, you MUST ONLY use the exact column names provided in the chat context. Do not invent column names (e.g., if the user asks for 'sales' but the column is 'revenue', use 'revenue'). Format non-SQL responses using markdown, Indian numbering (Lakhs, Crores), and Rupees (₹).` },
+        { role: 'system', content: `You are an expert Indian Data Analyst AI. You have access to a local SQL engine (DuckDB) loaded with the user's dataset in a table named 'dataset'. If the user asks a question that requires exact data calculation, you MUST output a SQL query to answer it. Wrap your SQL precisely in \`\`\`sql ... \`\`\` blocks. Output exactly ONE sql code block. Do NOT write scratchpads or thoughts inside sql code blocks. IMPORTANT: When writing SQL, you MUST ONLY use the exact column names provided in the chat context. Do not invent column names (e.g., if the user asks for 'sales' but the column is 'revenue', use 'revenue'). Format non-SQL responses using markdown, Indian numbering (Lakhs, Crores), and Rupees (₹).` },
         ...(history || []),
         { role: 'user', content: contextMessage }
       ];
@@ -77,7 +77,7 @@ export class ChatService {
           
           const isInvalid = (id: string) => {
             const lower = id.toLowerCase();
-            return lower.includes('whisper') || lower.includes('guard') || lower.includes('embed') || lower.includes('roberta') || lower.includes('vision');
+            return lower.includes('whisper') || lower.includes('guard') || lower.includes('embed') || lower.includes('roberta') || lower.includes('vision') || lower.includes('deepseek');
           };
 
           // First try to find any valid Llama model (ignoring namespace prefixes)
