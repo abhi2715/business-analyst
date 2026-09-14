@@ -1,93 +1,61 @@
-**CSV Analysis Chatbot**
-------------------------
+# 🚀 Enterprise Data Analytics Chatbot
 
-**Table of Contents**
+A state-of-the-art, fully autonomous AI Data Analytics platform built to process massive datasets completely in the browser using WebAssembly. Upload a CSV, ask questions in natural English, and watch the AI write and execute SQL queries instantly to give you 100% mathematically exact answers—all without sending your raw data to the cloud.
 
-1. [Introduction](#introduction)
-2. [Project Overview](#project-overview)
-3. [Features](#features)
-4. [Installation](#installation)
-5. [Requirements](#requirements)
-6. [Setup](#setup)
-7. [Usage](#usage)
-8. [Troubleshooting](#troubleshooting)
-9. [Contributing](#contributing)
-10. [License](#license)
+## ✨ Core Features & Specialties
 
-**Introduction**
+### 1. In-Browser SQL Engine (DuckDB WASM)
+* **The Problem:** Traditional AI chatbots hallucinate numbers because they can only look at small samples of data. Sending a 500MB CSV to an LLM API is impossible due to token limits.
+* **Our Solution:** We integrated **DuckDB WebAssembly** directly into the React frontend. When you upload a CSV, it is instantly converted into an in-memory SQL database inside your browser. 
+* **The Magic:** When you ask the AI a question, it doesn't try to guess the answer. Instead, it generates a strict SQL query (`SELECT sum(revenue)...`). The frontend intercepts this query, executes it locally against your massive dataset in milliseconds, and displays the mathematically exact result!
 
-Welcome to the CSV Analysis Chatbot project! This project aims to provide a user-friendly interface for analyzing CSV files using a chatbot. The chatbot uses natural language processing (NLP) to understand user queries and provides relevant results based on the data in the CSV file.
+### 2. Real-Time Streaming & Markdown UI
+* **Server-Sent Events (SSE):** The backend streams tokens from the Groq API (LLaMA-3) directly to the frontend using SSE. Responses appear instantly, token-by-token, eliminating loading anxiety.
+* **Rich Markdown:** Chat bubbles beautifully render markdown, tables, and code blocks using `react-markdown`.
+* **Stop Generation:** Users can halt long AI responses instantly to save tokens and time.
 
-**Project Overview**
+### 3. Enterprise-Grade UI/UX
+* **3D Particle Background:** A stunning, interactive WebGL particle network powered by `tsparticles`.
+* **Bento-Box Layout:** A sleek, glassmorphic layout featuring "Recent Datasets" (persisted in `localStorage`) and instant "Demo Datasets".
+* **Staggered Loading States:** Dragging a CSV triggers a beautiful, staggered loading animation that builds anticipation (*"Parsing Schema" -> "Generating AI Insights"*).
+* **Suggested Questions:** The AI dynamically analyzes your CSV headers and generates 3 clickable question chips (e.g., *"What is the total revenue?"*) to help users get started immediately.
 
-The CSV Analysis Chatbot project is built using the following technologies:
+## 🛠️ Technology Stack
 
-* **Gradio**: A Python library for building web-based interfaces for machine learning models.
-* **Langchain**: A Python library for building conversational AI models.
-* **OpenRouter**: A cloud-based API for NLP tasks.
+**Frontend:**
+* **React 18 + Vite:** Lightning-fast HMR and optimized production builds.
+* **DuckDB WASM:** High-performance analytical SQL database running locally in the browser.
+* **Framer Motion:** Smooth, physics-based micro-animations and layout transitions.
+* **Lucide React:** Clean, consistent SVG iconography.
+* **Recharts:** (Configured for future dynamic chart rendering).
 
-The project consists of the following components:
+**Backend:**
+* **NestJS (Node.js):** Enterprise-grade, scalable TypeScript backend framework.
+* **Groq API (LLaMA-3 8B):** Ultra-fast LLM inference engine. We use a highly tuned system prompt that instructs the AI to operate strictly as an Indian Data Analyst and generate precise DuckDB SQL queries.
+* **Express & Multer:** Handles lightweight schema processing before handing heavy lifting over to the frontend WASM engine.
 
-* **CSV Chatbot**: A Gradio-based interface for uploading CSV files and interacting with the chatbot.
-* **Agent**: A Langchain-based model that uses NLP to understand user queries and provide relevant results.
-* **OpenRouter API**: A cloud-based API that provides NLP capabilities for the agent.
+## 🚀 How to Run Locally
 
-**Features**
+### 1. Start the Backend
+```bash
+cd backend
+npm install
+# Ensure GROQ_API_KEY is set in your environment
+npm run start:dev
+```
 
-The CSV Analysis Chatbot project offers the following features:
+### 2. Start the Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-* **CSV File Upload**: Users can upload CSV files to the chatbot.
-* **Natural Language Queries**: Users can ask natural language queries about the data in the CSV file.
-* **Relevant Results**: The chatbot provides relevant results based on the user's query.
-* **Visualization**: The chatbot can provide visualizations of the data in the CSV file.
+## ☁️ Deployment
 
-**Installation**
+This project is fully containerized and decoupled for modern cloud deployment:
+- **Frontend (Vite):** Optimized for **Vercel**. Just add `VITE_API_URL` pointing to your backend.
+- **Backend (NestJS):** Optimized for **Render**. Just add `GROQ_API_KEY` and start with `npm run start:prod`.
 
-To install the CSV Analysis Chatbot project, follow these steps:
-
-### Requirements
-
-* **Python 3.8 or higher**: The project requires Python 3.8 or higher to run.
-* **Gradio**: The project requires Gradio to build the web-based interface.
-* **Langchain**: The project requires Langchain to build the conversational AI model.
-* **OpenRouter API Key**: The project requires an OpenRouter API key to use the NLP capabilities.
-
-### Setup
-
-1. **Install Python**: Install Python 3.8 or higher from the official Python website.
-2. **Install Gradio**: Install Gradio using pip: `pip install gradio`.
-3. **Install Langchain**: Install Langchain using pip: `pip install langchain`.
-4. **Get OpenRouter API Key**: Sign up for an OpenRouter API key on the OpenRouter website.
-5. **Clone the Repository**: Clone the CSV Analysis Chatbot repository using Git: `git clone https://github.com/username/csv-analysis-chatbot.git`.
-6. **Install Dependencies**: Install the dependencies required by the project using pip: `pip install -r requirements.txt`.
-7. **Set Environment Variables**: Set the `OPENROUTER_API_KEY` environment variable to your OpenRouter API key.
-
-### Usage
-
-1. **Run the Chatbot**: Run the chatbot using the following command: `python app.py`.
-2. **Upload CSV File**: Upload a CSV file to the chatbot using the Gradio interface.
-3. **Ask Queries**: Ask natural language queries about the data in the CSV file.
-4. **View Results**: View the relevant results provided by the chatbot.
-
-## Output
-
-<p align="center">
-<img src="https://github.com/user-attachments/assets/f4571633-9e13-4cf0-a25f-ea01b3be4020" width=700 height=300 alt="animated"/>
-</p>
-
-**Troubleshooting**
-
-If you encounter any issues while running the project, refer to the following troubleshooting steps:
-
-* **Check Environment Variables**: Ensure that the `OPENROUTER_API_KEY` environment variable is set correctly.
-* **Check Dependencies**: Ensure that all dependencies required by the project are installed correctly.
-* **Check CSV File**: Ensure that the CSV file is uploaded correctly and is in the correct format.
-
-**Contributing**
-
-If you'd like to contribute to the CSV Analysis Chatbot project, follow these steps:
-
-* **Fork the Repository**: Fork the CSV Analysis Chatbot repository using Git.
-* **Make Changes**: Make changes to the project code.
-* **Submit a Pull Request**: Submit a pull request to the original repository.
--------------
+---
+*Built with ❤️ for next-generation data intelligence.*
