@@ -1,6 +1,6 @@
 import { Controller, Post, Body, UseInterceptors, UploadedFile, Res } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Response } from 'express';
+import type { Response } from 'express';
 import { ChatService } from './chat.service.js';
 
 @Controller('chat')
