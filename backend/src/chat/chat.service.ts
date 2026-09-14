@@ -83,9 +83,10 @@ export class ChatService {
       }
       res.write(`data: [DONE]\n\n`);
       res.end();
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error('Groq Stream Error:', error);
-      res.write(`data: ${JSON.stringify({ content: "\n\n**Error:** Failed to stream from Groq." })}\n\n`);
+      const errMsg = error?.message || error?.toString() || "Unknown error";
+      res.write(`data: ${JSON.stringify({ content: `\n\n**Error:** Failed to stream from Groq. Details: ${errMsg}` })}\n\n`);
       res.write(`data: [DONE]\n\n`);
       res.end();
     }
