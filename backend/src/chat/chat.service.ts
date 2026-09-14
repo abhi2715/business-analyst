@@ -75,23 +75,17 @@ export class ChatService {
           const modelsResponse = await this.groq.models.list();
           const activeModels = modelsResponse.data;
           
-          const knownChatModels = [
-            'llama-3.3-70b-versatile',
-            'llama-3.1-8b-instant',
-            'llama-3.1-70b-versatile',
-            'llama-3.2-3b-preview',
-            'llama-3.2-1b-preview',
-            'mixtral-8x7b-32768',
-            'gemma2-9b-it'
-          ];
+          const isInvalid = (id: string) => {
+            const lower = id.toLowerCase();
+            return lower.includes('whisper') || lower.includes('guard') || lower.includes('embed') || lower.includes('roberta') || lower.includes('vision');
+          };
+
+          // First try to find any valid Llama model (ignoring namespace prefixes)
+          let preferredModel = activeModels.find((m: any) => m.id.toLowerCase().includes('llama') && !isInvalid(m.id));
           
-          let preferredModel = activeModels.find((m: any) => knownChatModels.includes(m.id));
-          
+          // Fallback to any model that isn't invalid
           if (!preferredModel) {
-            preferredModel = activeModels.find((m: any) => {
-              const id = m.id.toLowerCase();
-              return !id.includes('whisper') && !id.includes('guard') && !id.includes('embed') && !id.includes('roberta');
-            });
+            preferredModel = activeModels.find((m: any) => !isInvalid(m.id));
           }
           
           modelToUse = preferredModel ? preferredModel.id : activeModels[0].id;
