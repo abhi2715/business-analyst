@@ -48,13 +48,17 @@ export const loadCSVIntoDuckDB = async (db: duckdb.AsyncDuckDB, file: File, tabl
 };
 
 export const executeSQL = async (db: duckdb.AsyncDuckDB, query: string) => {
+    let conn;
     try {
-        const conn = await db.connect();
+        conn = await db.connect();
         const result = await conn.query(query);
-        await conn.close();
         return result.toArray().map(r => r.toJSON());
-    } catch (e) {
+    } catch (e: any) {
         console.error("SQL Execution Error:", e);
-        return [];
+        throw new Error(e.message || e.toString());
+    } finally {
+        if (conn) {
+            await conn.close();
+        }
     }
 };

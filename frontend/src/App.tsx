@@ -123,8 +123,8 @@ const App: React.FC = () => {
             content: `**Query Executed Locally:**\n\`\`\`json\n${JSON.stringify(result.slice(0, 5), null, 2)}\n\`\`\`\n*(Showing top 5 rows)*`
           };
           setMessages(prev => [...prev, resultMsg]);
-        } catch (e) {
-          setMessages(prev => [...prev, { id: Date.now().toString(), role: 'bot', content: '❌ Local SQL Execution Failed.' }]);
+        } catch (e: any) {
+          setMessages(prev => [...prev, { id: Date.now().toString(), role: 'bot', content: `❌ **SQL Execution Failed:**\n\`\`\`text\n${e.message}\n\`\`\`` }]);
         }
       }
 
