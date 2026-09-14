@@ -75,9 +75,23 @@ export class ChatService {
           const modelsResponse = await this.groq.models.list();
           const activeModels = modelsResponse.data;
           
-          let preferredModel = activeModels.find((m: any) => m.id.toLowerCase().includes('llama'));
+          const knownChatModels = [
+            'llama-3.3-70b-versatile',
+            'llama-3.1-8b-instant',
+            'llama-3.1-70b-versatile',
+            'llama-3.2-3b-preview',
+            'llama-3.2-1b-preview',
+            'mixtral-8x7b-32768',
+            'gemma2-9b-it'
+          ];
+          
+          let preferredModel = activeModels.find((m: any) => knownChatModels.includes(m.id));
+          
           if (!preferredModel) {
-            preferredModel = activeModels.find((m: any) => !m.id.toLowerCase().includes('whisper'));
+            preferredModel = activeModels.find((m: any) => {
+              const id = m.id.toLowerCase();
+              return !id.includes('whisper') && !id.includes('guard') && !id.includes('embed') && !id.includes('roberta');
+            });
           }
           
           modelToUse = preferredModel ? preferredModel.id : activeModels[0].id;
