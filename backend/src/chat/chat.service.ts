@@ -69,9 +69,22 @@ export class ChatService {
         { role: 'user', content: contextMessage }
       ];
 
+      let modelToUse = process.env.GROQ_MODEL;
+      if (!modelToUse) {
+        try {
+          const modelsResponse = await this.groq.models.list();
+          const activeModels = modelsResponse.data;
+          const preferredModel = activeModels.find((m: any) => m.id.includes('llama-3') || m.id.includes('llama3'));
+          modelToUse = preferredModel ? preferredModel.id : activeModels[0].id;
+          this.logger.log(`Dynamically selected Groq model: ${modelToUse}`);
+        } catch (modelError) {
+          modelToUse = 'llama-3.1-8b-instant';
+        }
+      }
+
       const stream = await this.groq.chat.completions.create({
         messages: messages as any,
-        model: 'llama-3.3-70b-versatile',
+        model: modelToUse,
         stream: true,
       });
 
