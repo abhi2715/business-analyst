@@ -34,12 +34,16 @@ export const initDuckDB = async () => {
 
 export const loadCSVIntoDuckDB = async (db: duckdb.AsyncDuckDB, file: File, tableName = 'dataset') => {
     try {
-        const url = URL.createObjectURL(file);
-        await db.registerFileURL(file.name, url, duckdb.DuckDBDataProtocol.HTTP, false);
+        const buffer = new Uint8Array(await file.arrayBuffer());
+        await db.registerFileBuffer(file.name, buffer);
+        
         const conn = await db.connect();
         await conn.query(`CREATE OR REPLACE TABLE ${tableName} AS SELECT * FROM read_csv_auto('${file.name}', header=true)`);
+        
+        const check = await conn.query(`SELECT COUNT(*) as count FROM ${tableName}`);
+        console.log(`DuckDB table ${tableName} created with ${check.toArray()[0].toJSON().count} rows.`);
+        
         await conn.close();
-        URL.revokeObjectURL(url);
         return true;
     } catch (e) {
         console.error("DuckDB Load Error:", e);
