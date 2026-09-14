@@ -74,7 +74,12 @@ export class ChatService {
         try {
           const modelsResponse = await this.groq.models.list();
           const activeModels = modelsResponse.data;
-          const preferredModel = activeModels.find((m: any) => m.id.includes('llama-3') || m.id.includes('llama3'));
+          
+          let preferredModel = activeModels.find((m: any) => m.id.toLowerCase().includes('llama'));
+          if (!preferredModel) {
+            preferredModel = activeModels.find((m: any) => !m.id.toLowerCase().includes('whisper'));
+          }
+          
           modelToUse = preferredModel ? preferredModel.id : activeModels[0].id;
           this.logger.log(`Dynamically selected Groq model: ${modelToUse}`);
         } catch (modelError) {
