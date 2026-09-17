@@ -22,22 +22,28 @@ const demoDatasets = [
 
 // Floating elements data
 const floatingItems = [
-  // Icons
-  { type: 'icon', content: 'csv', x: '8%', y: '15%', duration: 14, delay: 0, opacity: 0.1 },
-  { type: 'icon', content: 'xlsx', x: '85%', y: '20%', duration: 16, delay: 2, opacity: 0.08 },
-  { type: 'icon', content: 'chart', x: '75%', y: '70%', duration: 13, delay: 1, opacity: 0.1 },
-  { type: 'icon', content: 'db', x: '12%', y: '75%', duration: 17, delay: 3, opacity: 0.08 },
-  // Keywords
-  { type: 'keyword', content: 'Analytics', x: '18%', y: '30%', duration: 18, delay: 1, opacity: 0.08 },
-  { type: 'keyword', content: 'Revenue', x: '78%', y: '40%', duration: 15, delay: 4, opacity: 0.07 },
-  { type: 'keyword', content: 'KPI', x: '65%', y: '12%', duration: 12, delay: 2, opacity: 0.09 },
-  { type: 'keyword', content: 'Dashboard', x: '25%', y: '85%', duration: 16, delay: 0, opacity: 0.07 },
-  { type: 'keyword', content: 'Insights', x: '88%', y: '60%', duration: 14, delay: 3, opacity: 0.08 },
+  // Icons — visible on light background
+  { type: 'icon', content: 'csv', x: '6%', y: '18%', duration: 14, delay: 0 },
+  { type: 'icon', content: 'xlsx', x: '88%', y: '22%', duration: 16, delay: 2 },
+  { type: 'icon', content: 'chart', x: '78%', y: '72%', duration: 13, delay: 1 },
+  { type: 'icon', content: 'db', x: '10%', y: '78%', duration: 17, delay: 3 },
+  { type: 'icon', content: 'pdf', x: '92%', y: '50%', duration: 15, delay: 0.5 },
+  { type: 'icon', content: 'csv', x: '4%', y: '48%', duration: 18, delay: 4 },
+  // Keywords — user requested these exact words
+  { type: 'keyword', content: 'CSV', x: '15%', y: '28%', duration: 11, delay: 0 },
+  { type: 'keyword', content: 'EXCEL', x: '82%', y: '35%', duration: 13, delay: 3 },
+  { type: 'keyword', content: 'PDF', x: '68%', y: '14%', duration: 10, delay: 1 },
+  { type: 'keyword', content: 'SQL', x: '20%', y: '65%', duration: 12, delay: 2 },
+  { type: 'keyword', content: 'DATA', x: '75%', y: '58%', duration: 14, delay: 4 },
+  { type: 'keyword', content: 'ANALYTICS', x: '30%', y: '88%', duration: 16, delay: 1 },
+  { type: 'keyword', content: 'AI', x: '55%', y: '10%', duration: 9, delay: 0.5 },
+  { type: 'keyword', content: 'KPI', x: '90%', y: '80%', duration: 11, delay: 2.5 },
   // Code snippets
-  { type: 'snippet', content: 'SELECT * FROM', x: '5%', y: '50%', duration: 20, delay: 5, opacity: 0.06 },
-  { type: 'snippet', content: 'GROUP BY category', x: '70%', y: '85%', duration: 17, delay: 2, opacity: 0.06 },
-  { type: 'snippet', content: 'SUM(revenue)', x: '55%', y: '8%', duration: 15, delay: 4, opacity: 0.07 },
-  { type: 'snippet', content: 'ORDER BY date', x: '30%', y: '65%', duration: 19, delay: 1, opacity: 0.05 },
+  { type: 'snippet', content: 'SELECT * FROM', x: '5%', y: '42%', duration: 18, delay: 3 },
+  { type: 'snippet', content: 'GROUP BY category', x: '72%', y: '88%', duration: 15, delay: 1 },
+  { type: 'snippet', content: 'SUM(revenue)', x: '48%', y: '6%', duration: 13, delay: 2 },
+  { type: 'snippet', content: 'ORDER BY date', x: '25%', y: '55%', duration: 17, delay: 4 },
+  { type: 'snippet', content: 'AVG(cost)', x: '85%', y: '45%', duration: 14, delay: 0.5 },
 ];
 
 const FloatingIcon = ({ content }: { content: string }) => {
@@ -124,7 +130,6 @@ const Home: React.FC<HomeProps> = ({ onFileSelect, isLoading }) => {
             top: item.y,
             '--float-duration': `${item.duration}s`,
             '--float-delay': `${item.delay}s`,
-            '--float-opacity': item.opacity,
             animationDelay: `${item.delay}s`,
           } as React.CSSProperties}
         >

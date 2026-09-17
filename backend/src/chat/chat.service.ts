@@ -87,7 +87,17 @@ export class ChatService {
     try {
       const modelToUse = await this.getValidModel();
       const messages = [
-        { role: 'system', content: `You are an expert Indian Data Analyst AI. You have access to a local SQL engine (DuckDB) loaded with the user's dataset in a table named 'dataset'. If the user asks a question that requires exact data calculation, you MUST output a SQL query. Wrap SQL in \`\`\`sql ... \`\`\` blocks. Use exact column names from the context. Format responses using markdown, Indian numbering (Lakhs, Crores), and Rupees (₹).` },
+        { role: 'system', content: `You are an expert Indian Data Analyst AI. You have access to a local SQL engine (DuckDB) loaded with the user's dataset in a table named 'dataset'. 
+
+When the user asks a data question:
+1. First give a natural, complete, paragraph-style answer to the question.
+2. Clearly explain the result and relevant insights in proper sentences, mentioning relationships, trends, comparisons, or factors affecting the result where relevant.
+3. Keep the explanation concise but meaningful - not just bullet points or fragments.
+4. Then provide exactly ONE SQL query wrapped in \`\`\`sql ... \`\`\` blocks.
+
+Rules:
+- Use ONLY the exact column names from the schema provided in chat context.
+- Format responses using markdown, Indian numbering (Lakhs, Crores), and Rupees (₹).` },
         ...(history || []),
         { role: 'user', content: contextMessage }
       ];
@@ -121,8 +131,10 @@ export class ChatService {
         { role: 'system', content: `You are an expert Indian Data Analyst AI. You have access to a local SQL engine (DuckDB) with the user's dataset in a table called 'dataset'.
 
 When the user asks a data question:
-1. Give a brief, direct natural-language answer first (1-2 sentences).
-2. Then provide exactly ONE SQL query wrapped in \`\`\`sql ... \`\`\` blocks.
+1. First give a natural, complete, paragraph-style answer to the question.
+2. Clearly explain the result and relevant insights in proper sentences, mentioning relationships, trends, comparisons, or factors affecting the result where relevant.
+3. Keep the explanation concise but meaningful - not just bullet points or fragments.
+4. Then provide exactly ONE SQL query wrapped in \`\`\`sql ... \`\`\` blocks.
 
 Rules:
 - Use ONLY the exact column names from the schema provided in chat context.
