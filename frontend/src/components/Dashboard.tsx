@@ -89,11 +89,11 @@ const Dashboard: React.FC<DashboardProps> = ({ data, onStartChat }) => {
           <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
             <div style={{
               display: 'flex', alignItems: 'center', gap: '6px',
-              background: 'rgba(255,255,255,0.03)', padding: '6px 12px',
-              borderRadius: '8px', fontSize: '12px', border: '1px solid rgba(255,255,255,0.05)'
+              background: 'rgba(99, 102, 241, 0.05)', padding: '6px 12px',
+              borderRadius: '8px', fontSize: '12px', border: '1px solid var(--border-color)'
             }}>
               <Calendar size={13} color="var(--text-muted)" />
-              <select style={{ background: 'transparent', border: 'none', color: '#fff', outline: 'none', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}
+              <select style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', outline: 'none', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}
                 value={dateFilter} onChange={e => setDateFilter(e.target.value)}>
                 <option>All Time</option><option>Last 30 Days</option><option>Year to Date</option>
               </select>
@@ -101,11 +101,11 @@ const Dashboard: React.FC<DashboardProps> = ({ data, onStartChat }) => {
             {data.categoricalColumns?.length > 0 && (
               <div style={{
                 display: 'flex', alignItems: 'center', gap: '6px',
-                background: 'rgba(255,255,255,0.03)', padding: '6px 12px',
-                borderRadius: '8px', fontSize: '12px', border: '1px solid rgba(255,255,255,0.05)'
+                background: 'rgba(99, 102, 241, 0.05)', padding: '6px 12px',
+                borderRadius: '8px', fontSize: '12px', border: '1px solid var(--border-color)'
               }}>
                 <Filter size={13} color="var(--text-muted)" />
-                <select style={{ background: 'transparent', border: 'none', color: '#fff', outline: 'none', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}
+                <select style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', outline: 'none', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}
                   value={regionFilter} onChange={e => setRegionFilter(e.target.value)}>
                   <option>All {data.categoricalColumns[0]}</option>
                   <option>Segment A</option>
@@ -117,8 +117,8 @@ const Dashboard: React.FC<DashboardProps> = ({ data, onStartChat }) => {
 
         <div style={{ display: 'flex', gap: '10px' }}>
           <button style={{
-            background: 'rgba(255,255,255,0.03)', color: 'var(--text-secondary)',
-            border: '1px solid rgba(255,255,255,0.06)', padding: '10px 16px',
+            background: 'rgba(99, 102, 241, 0.05)', color: 'var(--text-secondary)',
+            border: '1px solid var(--border-color)', padding: '10px 16px',
             borderRadius: '10px', fontSize: '13px', display: 'flex', alignItems: 'center',
             gap: '8px', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s'
           }}>
@@ -146,7 +146,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data, onStartChat }) => {
             <span style={{ fontSize: '11px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Revenue</span>
             <DollarSign size={15} />
           </div>
-          <div style={{ fontSize: '28px', fontWeight: '700', color: '#fff', display: 'flex', alignItems: 'end', gap: '10px' }}>
+          <div style={{ fontSize: '28px', fontWeight: '700', color: 'var(--text-primary)', display: 'flex', alignItems: 'end', gap: '10px' }}>
             {data.totalSales ? formatINNumber(Number(data.totalSales), true) : 'N/A'}
             {data.totalSales && <span style={{ fontSize: '12px', color: 'var(--success)', display: 'flex', alignItems: 'center', paddingBottom: '4px' }}><TrendingUp size={12} style={{marginRight: '2px'}}/> 12.4%</span>}
           </div>
@@ -157,7 +157,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data, onStartChat }) => {
             <span style={{ fontSize: '11px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Rows</span>
             <Database size={15} />
           </div>
-          <div style={{ fontSize: '28px', fontWeight: '700', color: '#fff', display: 'flex', alignItems: 'end', gap: '10px' }}>
+          <div style={{ fontSize: '28px', fontWeight: '700', color: 'var(--text-primary)', display: 'flex', alignItems: 'end', gap: '10px' }}>
             {formatINNumber(data.rowCount)}
             <span style={{ fontSize: '12px', color: 'var(--success)', display: 'flex', alignItems: 'center', paddingBottom: '4px' }}><TrendingUp size={12} style={{marginRight: '2px'}}/> 8.2%</span>
           </div>
@@ -168,7 +168,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data, onStartChat }) => {
             <span style={{ fontSize: '11px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Profit / Margin</span>
             <TrendingUp size={15} />
           </div>
-          <div style={{ fontSize: '28px', fontWeight: '700', color: '#fff', display: 'flex', alignItems: 'end', gap: '10px' }}>
+          <div style={{ fontSize: '28px', fontWeight: '700', color: 'var(--text-primary)', display: 'flex', alignItems: 'end', gap: '10px' }}>
             {data.totalProfit ? formatINNumber(Number(data.totalProfit), true) : 'N/A'}
             {data.totalProfit && <span style={{ fontSize: '12px', color: 'var(--success)', display: 'flex', alignItems: 'center', paddingBottom: '4px' }}><TrendingUp size={12} style={{marginRight: '2px'}}/> 4.1%</span>}
           </div>
@@ -179,10 +179,10 @@ const Dashboard: React.FC<DashboardProps> = ({ data, onStartChat }) => {
             <span style={{ fontSize: '11px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>AI Health Score</span>
             <Target size={15} />
           </div>
-          <div style={{ fontSize: '28px', fontWeight: '700', color: '#fff' }}>
+          <div style={{ fontSize: '28px', fontWeight: '700', color: 'var(--text-primary)' }}>
             94<span style={{ fontSize: '16px', color: 'var(--text-muted)' }}>/100</span>
           </div>
-          <div style={{ width: '100%', background: 'rgba(255,255,255,0.06)', height: '3px', borderRadius: '2px', marginTop: '12px', overflow: 'hidden' }}>
+          <div style={{ width: '100%', background: 'rgba(99, 102, 241, 0.1)', height: '3px', borderRadius: '2px', marginTop: '12px', overflow: 'hidden' }}>
             <div style={{ width: '94%', background: 'linear-gradient(90deg, var(--accent-primary), var(--accent-secondary))', height: '100%', borderRadius: '2px' }} />
           </div>
         </motion.div>
@@ -207,7 +207,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data, onStartChat }) => {
                       <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(99, 102, 241, 0.1)" vertical={false} />
                   <XAxis dataKey="date" stroke="var(--text-muted)" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} tickLine={false} axisLine={false} dy={8} />
                   <YAxis stroke="var(--text-muted)" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} tickLine={false} axisLine={false} />
                   <Tooltip content={<CustomTooltip />} />
@@ -298,7 +298,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data, onStartChat }) => {
                     <span style={{ fontSize: '12px', fontWeight: '500', color: 'var(--text-secondary)' }}>{stat.column}</span>
                     <span style={{ fontSize: '12px', fontWeight: '600', color: COLORS[idx % COLORS.length] }}>{percent.toFixed(0)}%</span>
                   </div>
-                  <div style={{ width: '100%', background: 'rgba(255,255,255,0.04)', height: '6px', borderRadius: '3px', overflow: 'hidden' }}>
+                  <div style={{ width: '100%', background: 'rgba(99, 102, 241, 0.1)', height: '6px', borderRadius: '3px', overflow: 'hidden' }}>
                     <div style={{ width: `${percent}%`, background: `linear-gradient(90deg, ${COLORS[idx % COLORS.length]}, ${COLORS[(idx + 1) % COLORS.length]})`, height: '100%', borderRadius: '3px', transition: 'width 1s ease' }} />
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px' }}>
@@ -317,7 +317,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data, onStartChat }) => {
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
         className="glass" style={{ padding: '0', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
         <div style={{
-          padding: '16px 24px', borderBottom: '1px solid rgba(255,255,255,0.04)',
+          padding: '16px 24px', borderBottom: '1px solid var(--border-color)',
           display: 'flex', justifyContent: 'space-between', alignItems: 'center'
         }}>
           <h3 style={{ fontSize: '15px', fontWeight: '600', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
