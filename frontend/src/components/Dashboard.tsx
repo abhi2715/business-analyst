@@ -4,13 +4,14 @@ import {
 } from 'recharts';
 import {
   MessageSquare, Database, TrendingUp, DollarSign, Download,
-  Filter, Calendar, BellRing, Target, Layers
+  Filter, Calendar, BellRing, Target, Layers, Upload
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface DashboardProps {
   data: any;
   onStartChat: () => void;
+  onBackToUpload?: () => void;
 }
 
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
@@ -77,7 +78,7 @@ const CustomTooltip = ({ active, payload, label, trendAvg }: any) => {
   return null;
 };
 
-const Dashboard: React.FC<DashboardProps> = ({ data, onStartChat }) => {
+const Dashboard: React.FC<DashboardProps> = ({ data, onStartChat, onBackToUpload }) => {
   if (!data) return null;
 
   const [dateFilter, setDateFilter] = useState('All Time');
@@ -150,6 +151,16 @@ const Dashboard: React.FC<DashboardProps> = ({ data, onStartChat }) => {
         </div>
 
         <div style={{ display: 'flex', gap: '10px' }}>
+          {onBackToUpload && (
+            <button onClick={onBackToUpload} style={{
+              background: 'rgba(99, 102, 241, 0.05)', color: 'var(--text-secondary)',
+              border: '1px solid var(--border-color)', padding: '10px 16px',
+              borderRadius: '10px', fontSize: '13px', display: 'flex', alignItems: 'center',
+              gap: '8px', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s'
+            }}>
+              <Upload size={15} /> Upload New File
+            </button>
+          )}
           <button style={{
             background: 'rgba(99, 102, 241, 0.05)', color: 'var(--text-secondary)',
             border: '1px solid var(--border-color)', padding: '10px 16px',

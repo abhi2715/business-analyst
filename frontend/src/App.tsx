@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Loader2, Bot, User, Trash2, ArrowLeft, Database as DbIcon } from 'lucide-react';
+import { Send, Loader2, Bot, User, Trash2, ArrowLeft, Database as DbIcon, Upload } from 'lucide-react';
 import axios from 'axios';
 import Home from './components/Home';
 import Dashboard from './components/Dashboard';
@@ -40,6 +40,15 @@ const App: React.FC = () => {
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleReset = () => {
+    setView('home');
+    setSelectedFile(null);
+    setDashboardData(null);
+    setMessages([
+      { id: '1', role: 'bot', content: 'Hello! I\'m your AI Data Analyst. Upload a dataset and I\'ll help you explore it.' }
+    ]);
   };
 
   useEffect(() => { scrollToBottom(); }, [messages]);
@@ -264,7 +273,7 @@ ${response.data.totalProfit ? `- Total Profit: ${response.data.totalProfit}` : '
         )}
 
         {view === 'dashboard' && dashboardData && (
-          <Dashboard data={dashboardData} onStartChat={() => setView('chat')} />
+          <Dashboard data={dashboardData} onStartChat={() => setView('chat')} onBackToUpload={handleReset} />
         )}
 
         {view === 'chat' && (
@@ -283,6 +292,9 @@ ${response.data.totalProfit ? `- Total Profit: ${response.data.totalProfit}` : '
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <button className="sidebar-btn" onClick={() => setView('dashboard')}>
                   <ArrowLeft size={15} /> Back to Dashboard
+                </button>
+                <button className="sidebar-btn" onClick={handleReset}>
+                  <Upload size={15} /> Upload New File
                 </button>
                 <button className="sidebar-btn danger" onClick={clearChat}>
                   <Trash2 size={15} /> Clear Chat
