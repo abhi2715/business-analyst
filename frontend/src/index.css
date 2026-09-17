@@ -412,6 +412,13 @@ body {
   66% { transform: translate(-15px, -45px) rotate(-6deg); }
 }
 
+@keyframes floatVigorous {
+  0%, 100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  25% { transform: translate(40px, -30px) scale(1.05) rotate(12deg); }
+  50% { transform: translate(15px, -65px) scale(0.95) rotate(-8deg); }
+  75% { transform: translate(-30px, -20px) scale(1.08) rotate(15deg); }
+}
+
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
@@ -505,7 +512,7 @@ body {
   border-radius: var(--radius-full);
   background: var(--float-bg);
   border: 1px solid var(--float-bg);
-  animation: floatY var(--float-duration, 10s) var(--float-delay, 0s) infinite ease-in-out;
+  animation: floatVigorous var(--float-duration, 10s) var(--float-delay, 0s) infinite ease-in-out;
 }
 
 .floating-snippet {
@@ -518,7 +525,7 @@ body {
   background: var(--float-bg);
   border: 1px solid var(--float-bg);
   white-space: nowrap;
-  animation: floatDiag var(--float-duration, 14s) var(--float-delay, 0s) infinite ease-in-out;
+  animation: floatVigorous var(--float-duration, 14s) var(--float-delay, 0s) infinite ease-in-out;
 }
 
 /* ─── Upload Card ─── */
