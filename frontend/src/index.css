@@ -683,3 +683,38 @@ body {
   background: rgba(239, 68, 68, 0.04);
   transform: translateX(-50%) translateY(-2px);
 }
+
+/* ─── Hover Tooltips ─── */
+.hover-tooltip-container {
+  position: relative;
+}
+
+.hover-tooltip-content {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  margin-bottom: 8px;
+  padding: 10px 14px;
+  background: rgba(10, 14, 26, 0.95);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  color: #fff;
+  font-size: 11.5px;
+  border-radius: 8px;
+  white-space: normal;
+  width: max-content;
+  max-width: 250px;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.hover-tooltip-container:hover .hover-tooltip-content {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}

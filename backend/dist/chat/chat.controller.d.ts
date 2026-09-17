@@ -39,6 +39,16 @@ export declare class ChatController {
             }[];
         };
         aiInsight: string;
+        componentInsights: {
+            totalRevenue: string;
+            totalRows: string;
+            profitMargin: string;
+            healthScore: string;
+            trendChart: string;
+            breakdownChart: string;
+            targetChart: string;
+            alerts: string;
+        };
         categoricalColumns: string[];
     }>;
 }

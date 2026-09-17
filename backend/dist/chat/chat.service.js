@@ -250,17 +250,43 @@ Rules:
             };
         });
         let aiInsight = "Data processed successfully. No major anomalies detected in standard metrics.";
+        let componentInsights = {
+            totalRevenue: "Overall revenue across all transactions.",
+            totalRows: "Total volume of records processed.",
+            profitMargin: "Profitability metric derived from revenue vs costs.",
+            healthScore: "Data quality and completeness score.",
+            trendChart: "Time-series performance over the selected period.",
+            breakdownChart: "Categorical breakdown of the primary segment.",
+            targetChart: "Performance against computed baselines.",
+            alerts: aiInsight
+        };
         if (this.groq) {
             try {
                 const modelToUse = await this.getValidModel();
-                const prompt = `Analyze this dataset summary and provide a 2-sentence business diagnostic insight. Total Rows: ${rowCount}, Total Sales: ${totalSales}. Categories: ${bestCategory ? JSON.stringify(bestCategoryData) : 'None'}. Make it professional and actionable. Use Indian formatting (₹, Lakhs/Crores). No markdown bolding.`;
+                const prompt = `Analyze this dataset summary and provide business diagnostic insights. 
+Total Rows: ${rowCount}, Total Sales: ${totalSales}. Categories: ${bestCategory ? JSON.stringify(bestCategoryData) : 'None'}. 
+Output strictly in JSON format with the following keys:
+- "alerts": A 2-sentence overarching business diagnostic insight.
+- "totalRevenue": 1-sentence insight explaining the revenue.
+- "totalRows": 1-sentence insight on data volume.
+- "profitMargin": 1-sentence insight on profitability.
+- "healthScore": 1-sentence on data health.
+- "trendChart": 1-sentence on expected trends.
+- "breakdownChart": 1-sentence on the category breakdown.
+- "targetChart": 1-sentence on baseline targets.
+
+Make it professional and actionable. Use Indian formatting (₹, Lakhs/Crores). Return ONLY valid JSON without any markdown formatting.`;
                 const completion = await this.groq.chat.completions.create({
-                    messages: [{ role: 'system', content: 'You are an expert Indian data analyst.' }, { role: 'user', content: prompt }],
+                    messages: [{ role: 'system', content: 'You are an expert Indian data analyst. You must output ONLY valid JSON.' }, { role: 'user', content: prompt }],
                     model: modelToUse,
-                    temperature: 0.3
+                    temperature: 0.3,
+                    response_format: { type: "json_object" }
                 });
                 if (completion.choices[0]?.message?.content) {
-                    aiInsight = completion.choices[0].message.content;
+                    const parsed = JSON.parse(completion.choices[0].message.content);
+                    if (parsed.alerts)
+                        aiInsight = parsed.alerts;
+                    componentInsights = { ...componentInsights, ...parsed };
                 }
             }
             catch (e) {
@@ -277,6 +303,7 @@ Rules:
             trendData,
             breakdown: { category: bestCategory, data: bestCategoryData },
             aiInsight,
+            componentInsights,
             categoricalColumns: Object.keys(categoricalColumns)
         };
     }
