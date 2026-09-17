@@ -23,27 +23,27 @@ const demoDatasets = [
 // Floating elements data
 const floatingItems = [
   // Icons — visible on light background
-  { type: 'icon', content: 'csv', x: '6%', y: '18%', duration: 7, delay: 0, color: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' },
-  { type: 'icon', content: 'xlsx', x: '88%', y: '22%', duration: 8, delay: 1, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' },
-  { type: 'icon', content: 'chart', x: '78%', y: '72%', duration: 6.5, delay: 0.5, color: '#6366f1', bg: 'rgba(99, 102, 241, 0.1)' },
-  { type: 'icon', content: 'db', x: '10%', y: '78%', duration: 8.5, delay: 1.5, color: '#ec4899', bg: 'rgba(236, 72, 153, 0.1)' },
-  { type: 'icon', content: 'pdf', x: '92%', y: '50%', duration: 7.5, delay: 0.5, color: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' },
-  { type: 'icon', content: 'csv', x: '4%', y: '48%', duration: 9, delay: 2, color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.1)' },
+  { type: 'icon', content: 'csv', x: '6%', y: '18%', duration: 3.5, delay: 0, color: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' },
+  { type: 'icon', content: 'xlsx', x: '88%', y: '22%', duration: 4, delay: 1, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' },
+  { type: 'icon', content: 'chart', x: '78%', y: '72%', duration: 3.2, delay: 0.5, color: '#6366f1', bg: 'rgba(99, 102, 241, 0.1)' },
+  { type: 'icon', content: 'db', x: '10%', y: '78%', duration: 4.2, delay: 1.5, color: '#ec4899', bg: 'rgba(236, 72, 153, 0.1)' },
+  { type: 'icon', content: 'pdf', x: '92%', y: '50%', duration: 3.8, delay: 0.5, color: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' },
+  { type: 'icon', content: 'csv', x: '4%', y: '48%', duration: 4.5, delay: 2, color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.1)' },
   // Keywords — user requested these exact words
-  { type: 'keyword', content: 'CSV', x: '15%', y: '28%', duration: 5.5, delay: 0, color: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' },
-  { type: 'keyword', content: 'EXCEL', x: '82%', y: '35%', duration: 6.5, delay: 1.5, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' },
-  { type: 'keyword', content: 'PDF', x: '68%', y: '14%', duration: 5, delay: 0.5, color: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' },
-  { type: 'keyword', content: 'SQL', x: '20%', y: '65%', duration: 6, delay: 1, color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.1)' },
-  { type: 'keyword', content: 'DATA', x: '75%', y: '58%', duration: 7, delay: 2, color: '#ec4899', bg: 'rgba(236, 72, 153, 0.1)' },
-  { type: 'keyword', content: 'ANALYTICS', x: '30%', y: '88%', duration: 8, delay: 0.5, color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.1)' },
-  { type: 'keyword', content: 'AI', x: '55%', y: '10%', duration: 4.5, delay: 0.5, color: '#6366f1', bg: 'rgba(99, 102, 241, 0.1)' },
-  { type: 'keyword', content: 'KPI', x: '90%', y: '80%', duration: 5.5, delay: 1.2, color: '#14b8a6', bg: 'rgba(20, 184, 166, 0.1)' },
+  { type: 'keyword', content: 'CSV', x: '15%', y: '28%', duration: 2.8, delay: 0, color: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' },
+  { type: 'keyword', content: 'EXCEL', x: '82%', y: '35%', duration: 3.2, delay: 1.5, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' },
+  { type: 'keyword', content: 'PDF', x: '68%', y: '14%', duration: 2.5, delay: 0.5, color: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' },
+  { type: 'keyword', content: 'SQL', x: '20%', y: '65%', duration: 3.0, delay: 1, color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.1)' },
+  { type: 'keyword', content: 'DATA', x: '75%', y: '58%', duration: 3.5, delay: 2, color: '#ec4899', bg: 'rgba(236, 72, 153, 0.1)' },
+  { type: 'keyword', content: 'ANALYTICS', x: '30%', y: '88%', duration: 4.0, delay: 0.5, color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.1)' },
+  { type: 'keyword', content: 'AI', x: '55%', y: '10%', duration: 2.2, delay: 0.5, color: '#6366f1', bg: 'rgba(99, 102, 241, 0.1)' },
+  { type: 'keyword', content: 'KPI', x: '90%', y: '80%', duration: 2.8, delay: 1.2, color: '#14b8a6', bg: 'rgba(20, 184, 166, 0.1)' },
   // Code snippets
-  { type: 'snippet', content: 'SELECT * FROM', x: '5%', y: '42%', duration: 9, delay: 1.5, color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.1)' },
-  { type: 'snippet', content: 'GROUP BY category', x: '72%', y: '88%', duration: 7.5, delay: 0.5, color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.1)' },
-  { type: 'snippet', content: 'SUM(revenue)', x: '48%', y: '6%', duration: 6.5, delay: 1, color: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' },
-  { type: 'snippet', content: 'ORDER BY date', x: '25%', y: '55%', duration: 8.5, delay: 2, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' },
-  { type: 'snippet', content: 'AVG(cost)', x: '85%', y: '45%', duration: 7, delay: 0.5, color: '#ec4899', bg: 'rgba(236, 72, 153, 0.1)' },
+  { type: 'snippet', content: 'SELECT * FROM', x: '5%', y: '42%', duration: 4.5, delay: 1.5, color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.1)' },
+  { type: 'snippet', content: 'GROUP BY category', x: '72%', y: '88%', duration: 3.8, delay: 0.5, color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.1)' },
+  { type: 'snippet', content: 'SUM(revenue)', x: '48%', y: '6%', duration: 3.2, delay: 1, color: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' },
+  { type: 'snippet', content: 'ORDER BY date', x: '25%', y: '55%', duration: 4.2, delay: 2, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' },
+  { type: 'snippet', content: 'AVG(cost)', x: '85%', y: '45%', duration: 3.5, delay: 0.5, color: '#ec4899', bg: 'rgba(236, 72, 153, 0.1)' },
 ];
 
 const FloatingIcon = ({ content }: { content: string }) => {
