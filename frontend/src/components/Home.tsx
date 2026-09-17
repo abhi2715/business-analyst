@@ -23,27 +23,27 @@ const demoDatasets = [
 // Floating elements data
 const floatingItems = [
   // Icons — visible on light background
-  { type: 'icon', content: 'csv', x: '6%', y: '18%', duration: 14, delay: 0 },
-  { type: 'icon', content: 'xlsx', x: '88%', y: '22%', duration: 16, delay: 2 },
-  { type: 'icon', content: 'chart', x: '78%', y: '72%', duration: 13, delay: 1 },
-  { type: 'icon', content: 'db', x: '10%', y: '78%', duration: 17, delay: 3 },
-  { type: 'icon', content: 'pdf', x: '92%', y: '50%', duration: 15, delay: 0.5 },
-  { type: 'icon', content: 'csv', x: '4%', y: '48%', duration: 18, delay: 4 },
+  { type: 'icon', content: 'csv', x: '6%', y: '18%', duration: 7, delay: 0, color: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' },
+  { type: 'icon', content: 'xlsx', x: '88%', y: '22%', duration: 8, delay: 1, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' },
+  { type: 'icon', content: 'chart', x: '78%', y: '72%', duration: 6.5, delay: 0.5, color: '#6366f1', bg: 'rgba(99, 102, 241, 0.1)' },
+  { type: 'icon', content: 'db', x: '10%', y: '78%', duration: 8.5, delay: 1.5, color: '#ec4899', bg: 'rgba(236, 72, 153, 0.1)' },
+  { type: 'icon', content: 'pdf', x: '92%', y: '50%', duration: 7.5, delay: 0.5, color: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' },
+  { type: 'icon', content: 'csv', x: '4%', y: '48%', duration: 9, delay: 2, color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.1)' },
   // Keywords — user requested these exact words
-  { type: 'keyword', content: 'CSV', x: '15%', y: '28%', duration: 11, delay: 0 },
-  { type: 'keyword', content: 'EXCEL', x: '82%', y: '35%', duration: 13, delay: 3 },
-  { type: 'keyword', content: 'PDF', x: '68%', y: '14%', duration: 10, delay: 1 },
-  { type: 'keyword', content: 'SQL', x: '20%', y: '65%', duration: 12, delay: 2 },
-  { type: 'keyword', content: 'DATA', x: '75%', y: '58%', duration: 14, delay: 4 },
-  { type: 'keyword', content: 'ANALYTICS', x: '30%', y: '88%', duration: 16, delay: 1 },
-  { type: 'keyword', content: 'AI', x: '55%', y: '10%', duration: 9, delay: 0.5 },
-  { type: 'keyword', content: 'KPI', x: '90%', y: '80%', duration: 11, delay: 2.5 },
+  { type: 'keyword', content: 'CSV', x: '15%', y: '28%', duration: 5.5, delay: 0, color: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' },
+  { type: 'keyword', content: 'EXCEL', x: '82%', y: '35%', duration: 6.5, delay: 1.5, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' },
+  { type: 'keyword', content: 'PDF', x: '68%', y: '14%', duration: 5, delay: 0.5, color: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' },
+  { type: 'keyword', content: 'SQL', x: '20%', y: '65%', duration: 6, delay: 1, color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.1)' },
+  { type: 'keyword', content: 'DATA', x: '75%', y: '58%', duration: 7, delay: 2, color: '#ec4899', bg: 'rgba(236, 72, 153, 0.1)' },
+  { type: 'keyword', content: 'ANALYTICS', x: '30%', y: '88%', duration: 8, delay: 0.5, color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.1)' },
+  { type: 'keyword', content: 'AI', x: '55%', y: '10%', duration: 4.5, delay: 0.5, color: '#6366f1', bg: 'rgba(99, 102, 241, 0.1)' },
+  { type: 'keyword', content: 'KPI', x: '90%', y: '80%', duration: 5.5, delay: 1.2, color: '#14b8a6', bg: 'rgba(20, 184, 166, 0.1)' },
   // Code snippets
-  { type: 'snippet', content: 'SELECT * FROM', x: '5%', y: '42%', duration: 18, delay: 3 },
-  { type: 'snippet', content: 'GROUP BY category', x: '72%', y: '88%', duration: 15, delay: 1 },
-  { type: 'snippet', content: 'SUM(revenue)', x: '48%', y: '6%', duration: 13, delay: 2 },
-  { type: 'snippet', content: 'ORDER BY date', x: '25%', y: '55%', duration: 17, delay: 4 },
-  { type: 'snippet', content: 'AVG(cost)', x: '85%', y: '45%', duration: 14, delay: 0.5 },
+  { type: 'snippet', content: 'SELECT * FROM', x: '5%', y: '42%', duration: 9, delay: 1.5, color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.1)' },
+  { type: 'snippet', content: 'GROUP BY category', x: '72%', y: '88%', duration: 7.5, delay: 0.5, color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.1)' },
+  { type: 'snippet', content: 'SUM(revenue)', x: '48%', y: '6%', duration: 6.5, delay: 1, color: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' },
+  { type: 'snippet', content: 'ORDER BY date', x: '25%', y: '55%', duration: 8.5, delay: 2, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)' },
+  { type: 'snippet', content: 'AVG(cost)', x: '85%', y: '45%', duration: 7, delay: 0.5, color: '#ec4899', bg: 'rgba(236, 72, 153, 0.1)' },
 ];
 
 const FloatingIcon = ({ content }: { content: string }) => {
@@ -130,6 +130,8 @@ const Home: React.FC<HomeProps> = ({ onFileSelect, isLoading }) => {
             top: item.y,
             '--float-duration': `${item.duration}s`,
             '--float-delay': `${item.delay}s`,
+            '--float-color': item.color,
+            '--float-bg': item.bg,
             animationDelay: `${item.delay}s`,
           } as React.CSSProperties}
         >
@@ -182,7 +184,7 @@ const Home: React.FC<HomeProps> = ({ onFileSelect, isLoading }) => {
                 animation: 'spin 0.8s linear infinite'
               }} />
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '16px', fontWeight: '600', color: '#fff', marginBottom: '8px' }}>Processing Dataset...</div>
+                <div style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '8px' }}>Processing Dataset...</div>
                 <motion.div
                   key={loadingStep}
                   initial={{ opacity: 0, y: 8 }}
@@ -202,7 +204,7 @@ const Home: React.FC<HomeProps> = ({ onFileSelect, isLoading }) => {
                 <Upload size={36} color="var(--accent-tertiary)" />
               </div>
               <div style={{ textAlign: 'center', zIndex: 1 }}>
-                <h3 style={{ fontSize: '18px', fontWeight: '600', margin: '0 0 6px 0', color: '#fff' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: '600', margin: '0 0 6px 0', color: 'var(--text-primary)' }}>
                   {isDragging ? 'Drop your file here' : 'Click or drag CSV to upload'}
                 </h3>
                 <p style={{ color: 'var(--text-muted)', fontSize: '13px', margin: 0 }}>
@@ -273,7 +275,7 @@ const Home: React.FC<HomeProps> = ({ onFileSelect, isLoading }) => {
                     className="demo-card"
                   >
                     <div style={{ color: 'var(--accent-tertiary)', marginBottom: '10px' }}>{demo.icon}</div>
-                    <div style={{ fontSize: '13px', fontWeight: '600', color: '#fff', marginBottom: '4px' }}>{demo.name}</div>
+                    <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '4px' }}>{demo.name}</div>
                     <div style={{ fontSize: '11px', color: 'var(--text-muted)', lineHeight: '1.4' }}>{demo.desc}</div>
                     <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '8px', opacity: 0.6 }}>{demo.rows} rows</div>
                   </motion.div>
