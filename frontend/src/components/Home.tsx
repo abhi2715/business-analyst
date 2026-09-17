@@ -153,7 +153,7 @@ const Home: React.FC<HomeProps> = ({ onFileSelect, isLoading }) => {
         >
           <h1 style={{
             fontSize: '44px', fontWeight: '800', lineHeight: '1.15', letterSpacing: '-0.02em',
-            background: 'linear-gradient(135deg, #f1f5f9, #a78bfa, #6366f1)',
+            background: 'linear-gradient(135deg, #4f46e5, #9333ea, #ec4899)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
             marginBottom: '16px'
           }}>
