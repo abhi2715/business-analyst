@@ -90,6 +90,16 @@ const Dashboard: React.FC<DashboardProps> = ({ data, onStartChat }) => {
     trendAvg = sum / data.trendData.length;
   }
 
+  const insights = data.componentInsights || {
+    totalRevenue: `Total Revenue indicates the overall sales volume of ${formatINNumber(data.totalSales || 0, true)}. It helps evaluate top-line growth.`,
+    totalRows: `The dataset contains ${data.rowCount} rows of records.`,
+    profitMargin: `Profit/Margin tracks profitability. Total profit is ${data.totalProfit ? formatINNumber(data.totalProfit, true) : 'N/A'}.`,
+    healthScore: "AI Health Score represents data completeness and quality.",
+    trendChart: "Performance Trend shows the time-series pattern. Spikes and dips highlight seasonality or specific events.",
+    breakdownChart: `Categorical breakdown highlights the distribution of the primary segment (${data.breakdown?.category || 'Category'}).`,
+    targetChart: "Target vs Actual visualizes current performance against computed baselines."
+  };
+
   return (
     <div style={{
       width: '100%', height: '100%', display: 'flex', flexDirection: 'column', gap: '16px',
@@ -166,7 +176,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data, onStartChat }) => {
         style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
 
         <motion.div variants={itemVariants} className="glass kpi-card hover-tooltip-container">
-          <div className="hover-tooltip-content">{data.componentInsights?.totalRevenue}</div>
+          {insights.totalRevenue && <div className="hover-tooltip-content">{insights.totalRevenue}</div>}
           <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', marginBottom: '10px' }}>
             <span style={{ fontSize: '11px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Revenue</span>
             <DollarSign size={15} />
@@ -178,7 +188,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data, onStartChat }) => {
         </motion.div>
 
         <motion.div variants={itemVariants} className="glass kpi-card hover-tooltip-container">
-          <div className="hover-tooltip-content">{data.componentInsights?.totalRows}</div>
+          {insights.totalRows && <div className="hover-tooltip-content">{insights.totalRows}</div>}
           <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', marginBottom: '10px' }}>
             <span style={{ fontSize: '11px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Rows</span>
             <Database size={15} />
@@ -190,7 +200,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data, onStartChat }) => {
         </motion.div>
 
         <motion.div variants={itemVariants} className="glass kpi-card hover-tooltip-container">
-          <div className="hover-tooltip-content">{data.componentInsights?.profitMargin}</div>
+          {insights.profitMargin && <div className="hover-tooltip-content">{insights.profitMargin}</div>}
           <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)', marginBottom: '10px' }}>
             <span style={{ fontSize: '11px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Profit / Margin</span>
             <TrendingUp size={15} />
@@ -202,7 +212,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data, onStartChat }) => {
         </motion.div>
 
         <motion.div variants={itemVariants} className="glass kpi-card hover-tooltip-container" style={{ background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.06), rgba(139, 92, 246, 0.04))' }}>
-          <div className="hover-tooltip-content">{data.componentInsights?.healthScore}</div>
+          {insights.healthScore && <div className="hover-tooltip-content">{insights.healthScore}</div>}
           <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--accent-tertiary)', marginBottom: '10px' }}>
             <span style={{ fontSize: '11px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>AI Health Score</span>
             <Target size={15} />
@@ -220,7 +230,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data, onStartChat }) => {
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px' }}>
         <motion.div initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
           className="glass hover-tooltip-container" style={{ padding: '24px', borderRadius: 'var(--radius-lg)' }}>
-          <div className="hover-tooltip-content">{data.componentInsights?.trendChart}</div>
+          {insights.trendChart && <div className="hover-tooltip-content">{insights.trendChart}</div>}
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
             <h3 style={{ fontSize: '15px', fontWeight: '600', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
               <TrendingUp size={16} color="var(--accent-primary)"/> Performance Trend
@@ -288,7 +298,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data, onStartChat }) => {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
           className="glass hover-tooltip-container" style={{ padding: '24px', borderRadius: 'var(--radius-lg)' }}>
-          <div className="hover-tooltip-content">{data.componentInsights?.breakdownChart}</div>
+          {insights.breakdownChart && <div className="hover-tooltip-content">{insights.breakdownChart}</div>}
           <h3 style={{ fontSize: '15px', fontWeight: '600', margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Layers size={16} color="var(--accent-secondary)"/> Breakdown by {data.breakdown?.category || 'Category'}
           </h3>
@@ -314,7 +324,7 @@ const Dashboard: React.FC<DashboardProps> = ({ data, onStartChat }) => {
 
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
           className="glass hover-tooltip-container" style={{ padding: '24px', borderRadius: 'var(--radius-lg)' }}>
-          <div className="hover-tooltip-content">{data.componentInsights?.targetChart}</div>
+          {insights.targetChart && <div className="hover-tooltip-content">{insights.targetChart}</div>}
           <h3 style={{ fontSize: '15px', fontWeight: '600', margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Target size={16} color="var(--success)"/> Target vs Actual
           </h3>
