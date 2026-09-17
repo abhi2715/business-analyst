@@ -15,6 +15,7 @@ import Papa from 'papaparse';
 let ChatService = ChatService_1 = class ChatService {
     logger = new Logger(ChatService_1.name);
     groq = null;
+    cachedModel = null;
     constructor() {
         const apiKey = process.env.GROQ_API_KEY || 'mock-key';
         if (apiKey === 'mock-key') {
@@ -22,6 +23,43 @@ let ChatService = ChatService_1 = class ChatService {
         }
         else {
             this.groq = new Groq({ apiKey });
+        }
+    }
+    async getValidModel() {
+        if (this.cachedModel)
+            return this.cachedModel;
+        const envModel = process.env.GROQ_MODEL;
+        if (envModel) {
+            this.cachedModel = envModel;
+            return envModel;
+        }
+        if (!this.groq)
+            return 'llama-3.1-8b-instant';
+        try {
+            const modelsResponse = await this.groq.models.list();
+            const activeModels = modelsResponse.data;
+            const isInvalidModel = (id) => {
+                const lower = id.toLowerCase();
+                const blocked = [
+                    'whisper', 'guard', 'embed', 'roberta', 'vision',
+                    'deepseek', 'orpheus', 'playai', 'distil-whisper',
+                    'compound', 'tool-use'
+                ];
+                return blocked.some(term => lower.includes(term));
+            };
+            let model = activeModels.find((m) => m.id.toLowerCase().includes('llama') && !isInvalidModel(m.id));
+            if (!model) {
+                model = activeModels.find((m) => !isInvalidModel(m.id));
+            }
+            const selected = model ? model.id : 'llama-3.1-8b-instant';
+            this.logger.log(`Selected Groq model: ${selected}`);
+            this.cachedModel = selected;
+            return selected;
+        }
+        catch (error) {
+            this.logger.warn('Model discovery failed, using fallback');
+            this.cachedModel = 'llama-3.1-8b-instant';
+            return this.cachedModel;
         }
     }
     async processChat(message, history, file) {
@@ -34,17 +72,18 @@ let ChatService = ChatService_1 = class ChatService {
             }
         }
         if (!this.groq) {
-            return { reply: `(Mock Mode) You said: ${contextMessage}. Set GROQ_API_KEY to see real Groq AI responses.` };
+            return { reply: `(Mock Mode) You said: ${contextMessage}. Set GROQ_API_KEY to see real AI responses.` };
         }
         try {
+            const modelToUse = await this.getValidModel();
             const messages = [
-                { role: 'system', content: `You are an expert Indian Data Analyst AI. You have access to a local SQL engine (DuckDB) loaded with the user's dataset in a table named 'dataset'. If the user asks a question that requires exact data calculation (e.g., sum, averages, grouping), you MUST output a SQL query to answer it. Wrap your SQL precisely in \`\`\`sql ... \`\`\` blocks. The frontend will execute your SQL and display the results. Format other responses using markdown, Indian numbering (Lakhs, Crores), and Rupees (₹).` },
+                { role: 'system', content: `You are an expert Indian Data Analyst AI. You have access to a local SQL engine (DuckDB) loaded with the user's dataset in a table named 'dataset'. If the user asks a question that requires exact data calculation, you MUST output a SQL query. Wrap SQL in \`\`\`sql ... \`\`\` blocks. Use exact column names from the context. Format responses using markdown, Indian numbering (Lakhs, Crores), and Rupees (₹).` },
                 ...(history || []),
                 { role: 'user', content: contextMessage }
             ];
             const completion = await this.groq.chat.completions.create({
                 messages: messages,
-                model: 'llama3-8b-8192',
+                model: modelToUse,
             });
             return { reply: completion.choices[0]?.message?.content || 'No response from Groq.' };
         }
@@ -56,20 +95,31 @@ let ChatService = ChatService_1 = class ChatService {
     async processChatStream(message, history, res) {
         let contextMessage = message;
         if (!this.groq) {
-            res.write(`data: ${JSON.stringify({ content: "(Mock Mode) You said: " + contextMessage + ". Set GROQ_API_KEY to see real Groq AI responses." })}\n\n`);
+            res.write(`data: ${JSON.stringify({ content: "(Mock Mode) Set GROQ_API_KEY for real AI responses." })}\n\n`);
             res.write(`data: [DONE]\n\n`);
             res.end();
             return;
         }
         try {
+            const modelToUse = await this.getValidModel();
             const messages = [
-                { role: 'system', content: `You are an expert Indian Data Analyst AI. You have access to a local SQL engine (DuckDB) loaded with the user's dataset in a table named 'dataset'. If the user asks a question that requires exact data calculation (e.g., sum, averages, grouping), you MUST output a SQL query to answer it. Wrap your SQL precisely in \`\`\`sql ... \`\`\` blocks. The frontend will execute your SQL and display the results. Format other responses using markdown, Indian numbering (Lakhs, Crores), and Rupees (₹).` },
+                { role: 'system', content: `You are an expert Indian Data Analyst AI. You have access to a local SQL engine (DuckDB) with the user's dataset in a table called 'dataset'.
+
+When the user asks a data question:
+1. Give a brief, direct natural-language answer first (1-2 sentences).
+2. Then provide exactly ONE SQL query wrapped in \`\`\`sql ... \`\`\` blocks.
+
+Rules:
+- Use ONLY the exact column names from the schema provided in chat context.
+- Do NOT invent column names. If the user says "sales" but the column is "revenue", use "revenue".
+- Do NOT include thoughts, scratchpads, or multiple SQL blocks.
+- Format non-SQL text using markdown, Indian numbering (Lakhs/Crores), and Rupees (₹).` },
                 ...(history || []),
                 { role: 'user', content: contextMessage }
             ];
             const stream = await this.groq.chat.completions.create({
                 messages: messages,
-                model: 'llama3-8b-8192',
+                model: modelToUse,
                 stream: true,
             });
             for await (const chunk of stream) {
@@ -83,7 +133,12 @@ let ChatService = ChatService_1 = class ChatService {
         }
         catch (error) {
             this.logger.error('Groq Stream Error:', error);
-            res.write(`data: ${JSON.stringify({ content: "\n\n**Error:** Failed to stream from Groq." })}\n\n`);
+            if (this.cachedModel) {
+                this.cachedModel = null;
+                this.logger.log('Cleared model cache, will retry on next request');
+            }
+            const errMsg = error?.message || error?.toString() || "Unknown error";
+            res.write(`data: ${JSON.stringify({ content: `\n\n**Error:** Failed to stream from Groq. Details: ${errMsg}` })}\n\n`);
             res.write(`data: [DONE]\n\n`);
             res.end();
         }
@@ -185,10 +240,11 @@ let ChatService = ChatService_1 = class ChatService {
         let aiInsight = "Data processed successfully. No major anomalies detected in standard metrics.";
         if (this.groq) {
             try {
-                const prompt = `Analyze this dataset summary and provide a 2-sentence business diagnostic insight (e.g. "Revenue is strong, but X region is underperforming"). Total Rows: ${rowCount}, Total Sales: ${totalSales}. Categories: ${bestCategory ? JSON.stringify(bestCategoryData) : 'None'}. Make it sound professional and actionable. Do not use markdown bolding. Use Indian formatting (₹, Lakhs/Crores) for any numbers.`;
+                const modelToUse = await this.getValidModel();
+                const prompt = `Analyze this dataset summary and provide a 2-sentence business diagnostic insight. Total Rows: ${rowCount}, Total Sales: ${totalSales}. Categories: ${bestCategory ? JSON.stringify(bestCategoryData) : 'None'}. Make it professional and actionable. Use Indian formatting (₹, Lakhs/Crores). No markdown bolding.`;
                 const completion = await this.groq.chat.completions.create({
                     messages: [{ role: 'system', content: 'You are an expert Indian data analyst.' }, { role: 'user', content: prompt }],
-                    model: 'llama3-8b-8192',
+                    model: modelToUse,
                     temperature: 0.3
                 });
                 if (completion.choices[0]?.message?.content) {
@@ -196,7 +252,7 @@ let ChatService = ChatService_1 = class ChatService {
                 }
             }
             catch (e) {
-                this.logger.warn('Groq Insight failed', e);
+                this.logger.warn('AI Insight generation failed', e);
             }
         }
         return {

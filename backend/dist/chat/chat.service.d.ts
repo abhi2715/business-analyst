@@ -1,7 +1,9 @@
 export declare class ChatService {
     private readonly logger;
     private groq;
+    private cachedModel;
     constructor();
+    private getValidModel;
     processChat(message: string, history: any[], file?: any): Promise<{
         reply: string;
     }>;

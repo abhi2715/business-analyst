@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Loader2, Bot, User, Trash2, ArrowLeft } from 'lucide-react';
+import { Send, Loader2, Bot, User, Trash2, ArrowLeft, Database as DbIcon } from 'lucide-react';
 import axios from 'axios';
-import Cursor from './components/Cursor';
 import Home from './components/Home';
 import Dashboard from './components/Dashboard';
 import { initDuckDB, loadCSVIntoDuckDB, executeSQL } from './duckdb';
@@ -13,14 +12,15 @@ interface Message {
   role: 'user' | 'bot';
   content: string;
   isError?: boolean;
+  resultTable?: { columns: string[]; rows: Record<string, any>[]; rowCount: number; sql: string } | null;
 }
 
 const App: React.FC = () => {
   const [view, setView] = useState<'home' | 'dashboard' | 'chat'>('home');
   const [dashboardData, setDashboardData] = useState<any>(null);
-  
+
   const [messages, setMessages] = useState<Message[]>([
-    { id: '1', role: 'bot', content: 'Hello! I am your AI Data Analyst. I have analyzed your data. How can I help you today?' }
+    { id: '1', role: 'bot', content: 'Hello! I\'m your AI Data Analyst. Upload a dataset and I\'ll help you explore it.' }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -28,28 +28,21 @@ const App: React.FC = () => {
   const [db, setDb] = useState<any>(null);
   const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([]);
   const abortControllerRef = useRef<AbortController | null>(null);
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     initDuckDB().then(database => {
       setDb(database);
-      console.log("DuckDB Initialized locally");
+      console.log("DuckDB initialized");
     }).catch(e => console.error(e));
   }, []);
 
   const scrollToBottom = () => {
-    if (messagesEndRef.current) {
-      const container = messagesEndRef.current.parentElement;
-      if (container) {
-        container.scrollTop = container.scrollHeight;
-      }
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  useEffect(() => { scrollToBottom(); }, [messages]);
 
   const handleSend = async (overrideInput?: string) => {
     const messageText = overrideInput || input;
@@ -92,8 +85,6 @@ const App: React.FC = () => {
           const { done, value } = await reader.read();
           if (done) break;
           const chunk = decoder.decode(value, { stream: true });
-          
-          // Basic SSE Parsing (assuming backend sends data: chunk)
           const lines = chunk.split('\n');
           for (const line of lines) {
             if (line.startsWith('data: ')) {
@@ -103,39 +94,52 @@ const App: React.FC = () => {
                 const parsed = JSON.parse(text);
                 fullContent += parsed.content || '';
                 setMessages(prev => prev.map(m => m.id === botMsgId ? { ...m, content: fullContent } : m));
-              } catch (e) {
-                // Ignore partial JSON chunks
+              } catch (_e) {
+                // Ignore partial JSON
               }
             }
           }
         }
       }
 
-      // After streaming is done, check for SQL
-      let sqlMatches = [...fullContent.matchAll(/```(?:sql)?\n([\s\S]*?)\n```/g)];
+      // After streaming: extract SQL and execute locally
+      const sqlMatches = [...fullContent.matchAll(/```(?:sql)?\n([\s\S]*?)\n```/g)];
       const validSqls = sqlMatches.map(m => m[1].trim()).filter(sql => sql.length > 5);
-      
+
       if (validSqls.length > 0 && db) {
+        const sql = validSqls[validSqls.length - 1];
         try {
-          const sql = validSqls[validSqls.length - 1]; // get the final intended query
           const result = await executeSQL(db, sql);
+          const columns = result.length > 0 ? Object.keys(result[0]) : [];
+          const displayRows = result.slice(0, 20);
+
+          // Add result as a separate message with table data
           const resultMsg: Message = {
             id: (Date.now() + 2).toString(),
             role: 'bot',
-            content: `**Query Executed Locally:**\n\`\`\`json\n${JSON.stringify(result.slice(0, 5), null, 2)}\n\`\`\`\n*(Showing top 5 rows)*`
+            content: '',
+            resultTable: { columns, rows: displayRows, rowCount: result.length, sql }
           };
           setMessages(prev => [...prev, resultMsg]);
         } catch (e: any) {
-          setMessages(prev => [...prev, { id: Date.now().toString(), role: 'bot', content: `❌ **SQL Execution Failed:**\n\`\`\`text\n${e.message}\n\`\`\`` }]);
+          setMessages(prev => [...prev, {
+            id: Date.now().toString(),
+            role: 'bot',
+            content: `**SQL Execution Error**\n\n\`${e.message}\``,
+            isError: true
+          }]);
         }
       }
 
     } catch (error: any) {
       if (error.name === 'AbortError') {
-        console.log('Stream stopped by user');
+        console.log('Stream stopped');
       } else {
         console.error(error);
-        setMessages(prev => prev.map(m => m.id === botMsgId ? { ...m, content: m.content + '\n\n*Error: Connection lost.*', isError: true } : m));
+        setMessages(prev => prev.map(m => m.id === botMsgId
+          ? { ...m, content: m.content + '\n\n*Connection lost.*', isError: true }
+          : m
+        ));
       }
     } finally {
       setIsLoading(false);
@@ -153,11 +157,8 @@ const App: React.FC = () => {
 
   const clearChat = () => {
     const contextMsg = messages.find(m => m.id === '0');
-    if (contextMsg) {
-      setMessages([contextMsg, { id: '1', role: 'bot', content: 'Chat history cleared. How can I assist you now?' }]);
-    } else {
-      setMessages([{ id: '1', role: 'bot', content: 'Chat history cleared. How can I assist you now?' }]);
-    }
+    const base: Message = { id: '1', role: 'bot', content: 'Chat cleared. How can I help you?' };
+    setMessages(contextMsg ? [contextMsg, base] : [base]);
   };
 
   const handleFileUpload = async (file: File) => {
@@ -166,36 +167,34 @@ const App: React.FC = () => {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      
+
       const response = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/chat/analyze`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      
+
       if (db) {
         await loadCSVIntoDuckDB(db, file, 'dataset');
-        console.log("CSV loaded into local DuckDB engine as 'dataset'");
+        console.log("CSV loaded into DuckDB as 'dataset'");
       }
 
       setDashboardData(response.data);
-      
-      // Inject context into the chat history for the AI
-      const systemContext = `The user has uploaded a file named ${file.name}. Here are the KPIs calculated by the system:
+
+      const systemContext = `The user has uploaded "${file.name}". Schema info:
 - Total Rows: ${response.data.rowCount}
 - Columns: ${response.data.columns.join(', ')}
-${response.data.totalSales ? `- Total Sales: $${response.data.totalSales}` : ''}
-${response.data.totalProfit ? `- Total Profit: $${response.data.totalProfit}` : ''}
-- Column Averages: ${JSON.stringify(response.data.columnStats)}`;
-      
+${response.data.totalSales ? `- Total Sales/Revenue: ${response.data.totalSales}` : ''}
+${response.data.totalProfit ? `- Total Profit: ${response.data.totalProfit}` : ''}
+- Column Stats: ${JSON.stringify(response.data.columnStats)}`;
+
       setMessages([
-        { id: '0', role: 'user', content: systemContext }, // Hidden context message
-        { id: '1', role: 'bot', content: `I've analyzed ${file.name}. Let's look at the Dashboard, or ask me any questions about the data!` }
+        { id: '0', role: 'user', content: systemContext },
+        { id: '1', role: 'bot', content: `I've analyzed **${file.name}**. Head to the Dashboard for visuals, or ask me anything about your data!` }
       ]);
-      
-      // Generate suggested questions based on columns
+
       const cols = response.data.columns;
       const suggestions = [
-        `What is the total ${response.data.totalSales ? 'sales' : 'count'}?`,
-        `Show me the average ${cols.find((c:string) => c.toLowerCase().includes('profit') || c.toLowerCase().includes('amount') || c.toLowerCase().includes('price')) || cols[0]}`,
+        `What is the total ${response.data.totalSales ? 'revenue' : 'count'}?`,
+        `Show me the average ${cols.find((c: string) => c.toLowerCase().includes('profit') || c.toLowerCase().includes('amount') || c.toLowerCase().includes('cost') || c.toLowerCase().includes('revenue')) || cols[0]}`,
         `Group the data by ${response.data.categoricalColumns ? Object.keys(response.data.categoricalColumns)[0] || cols[1] : cols[1]}`
       ].filter(Boolean);
       setSuggestedQuestions(suggestions);
@@ -203,162 +202,183 @@ ${response.data.totalProfit ? `- Total Profit: $${response.data.totalProfit}` : 
       setView('dashboard');
     } catch (error) {
       console.error(error);
-      alert('Failed to analyze the file. Please check the backend.');
+      alert('Failed to analyze file. Check if the backend is running.');
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Clean <think> tags from display
+  const cleanContent = (text: string) => text.replace(/<think>[\s\S]*?(<\/think>|$)/g, '').trim();
+
+  // Render a result table
+  const ResultTable = ({ data }: { data: NonNullable<Message['resultTable']> }) => (
+    <div style={{ animation: 'fadeInUp 0.3s ease both' }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px',
+        fontSize: '12px', fontWeight: '600', color: 'var(--accent-tertiary)',
+        textTransform: 'uppercase', letterSpacing: '0.5px'
+      }}>
+        <DbIcon size={14} /> Query Result
+      </div>
+      <div className="result-table-wrapper">
+        <div style={{ overflowX: 'auto' }}>
+          <table className="result-table">
+            <thead>
+              <tr>
+                {data.columns.map(col => <th key={col}>{col}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {data.rows.map((row, i) => (
+                <tr key={i}>
+                  {data.columns.map(col => (
+                    <td key={col}>
+                      {row[col] !== null && row[col] !== undefined ? String(row[col]) : '—'}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="result-summary">
+          {data.rowCount <= 20
+            ? `${data.rowCount} row${data.rowCount !== 1 ? 's' : ''} returned`
+            : `Showing 20 of ${data.rowCount} rows`
+          }
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <>
-      <Cursor />
-      
       {/* Background Orbs */}
       <div className="orb orb-1"></div>
       <div className="orb orb-2"></div>
-      
+
       <div className="app-container">
         {view === 'home' && (
           <Home onFileSelect={handleFileUpload} isLoading={isLoading} />
         )}
-        
+
         {view === 'dashboard' && dashboardData && (
           <Dashboard data={dashboardData} onStartChat={() => setView('chat')} />
         )}
 
         {view === 'chat' && (
           <>
+            {/* Sidebar */}
             <aside className="sidebar glass">
               <div className="chat-header">
-                <h1>Data Analytics Bot</h1>
-              </div>
-              
-              <div className="sidebar-content" style={{ flex: 1, display: 'block', overflowY: 'auto', paddingBottom: '80px' }}>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.6' }}>
-                  Ask questions about your uploaded data. The AI has context about your KPIs and metrics.
+                <h1>Data Analyst</h1>
+                <p style={{ color: 'var(--text-muted)', fontSize: '12px', marginTop: '4px' }}>
+                  AI-powered data exploration
                 </p>
-                
-                <button 
-                  onClick={() => setView('dashboard')}
-                  style={{
-                    background: 'rgba(99, 102, 241, 0.1)',
-                    border: '1px solid rgba(99, 102, 241, 0.2)',
-                    color: 'var(--accent-primary)',
-                    padding: '12px',
-                    borderRadius: '8px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    marginTop: '24px',
-                    width: '100%',
-                    transition: 'all 0.2s',
-                    fontFamily: 'inherit',
-                    cursor: 'pointer'
-                  }}
-                >
-                  <ArrowLeft size={16} /> Back to Dashboard
-                </button>
+              </div>
 
-                <button 
-                  onClick={clearChat}
-                  style={{
-                    background: 'rgba(239, 68, 68, 0.1)',
-                    border: '1px solid rgba(239, 68, 68, 0.2)',
-                    color: '#ef4444',
-                    padding: '12px',
-                    borderRadius: '8px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    position: 'absolute',
-                    bottom: '24px',
-                    left: '24px',
-                    right: '24px',
-                    transition: 'all 0.2s',
-                    fontFamily: 'inherit',
-                    cursor: 'pointer'
-                  }}
-                >
-                  <Trash2 size={16} /> Clear Conversation
+              <div style={{ flex: 1 }} />
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <button className="sidebar-btn" onClick={() => setView('dashboard')}>
+                  <ArrowLeft size={15} /> Back to Dashboard
+                </button>
+                <button className="sidebar-btn danger" onClick={clearChat}>
+                  <Trash2 size={15} /> Clear Chat
                 </button>
               </div>
             </aside>
 
+            {/* Main Chat Area */}
             <main className="main-chat glass">
               <div className="messages-container">
-                {messages.filter(m => m.id !== '0').map((msg) => ( // Don't show hidden context
+                {messages.filter(m => m.id !== '0').map((msg) => (
                   <div key={msg.id} className={`message-bubble ${msg.role}`}>
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                       <div style={{
-                        width: '32px', height: '32px', borderRadius: '50%',
-                        background: msg.role === 'bot' ? 'var(--accent-primary)' : 'rgba(255,255,255,0.1)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                        boxShadow: msg.role === 'bot' ? '0 0 15px rgba(99, 102, 241, 0.4)' : 'none'
+                        width: '30px', height: '30px', borderRadius: '50%', flexShrink: 0,
+                        background: msg.role === 'bot'
+                          ? 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))'
+                          : 'rgba(255,255,255,0.06)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
                       }}>
-                        {msg.role === 'bot' ? <Bot size={18} /> : <User size={18} />}
+                        {msg.role === 'bot' ? <Bot size={15} /> : <User size={15} />}
                       </div>
-                      <div className="markdown-body" style={{ color: msg.isError ? '#ef4444' : 'inherit', width: '100%' }}>
-                        <ReactMarkdown rehypePlugins={[rehypeRaw]}>{msg.content.replace(/<think>[\s\S]*?(<\/think>|$)/g, '')}</ReactMarkdown>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        {msg.content && (
+                          <div className="markdown-body" style={{
+                            color: msg.isError ? 'var(--danger)' : 'inherit', width: '100%'
+                          }}>
+                            <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+                              {cleanContent(msg.content)}
+                            </ReactMarkdown>
+                          </div>
+                        )}
+                        {msg.resultTable && <ResultTable data={msg.resultTable} />}
                       </div>
                     </div>
                   </div>
                 ))}
-                
+
                 {isLoading && (
                   <div className="message-bubble bot">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <div style={{
-                        width: '32px', height: '32px', borderRadius: '50%',
-                        background: 'var(--accent-primary)',
+                        width: '30px', height: '30px', borderRadius: '50%',
+                        background: 'linear-gradient(135deg, var(--accent-primary), var(--accent-secondary))',
                         display: 'flex', alignItems: 'center', justifyContent: 'center'
                       }}>
-                        <Bot size={18} />
+                        <Bot size={15} />
                       </div>
-                      <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Loader2 size={16} style={{ animation: 'spin 0.8s linear infinite', color: 'var(--accent-tertiary)' }} />
+                        <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Thinking...</span>
+                      </div>
                     </div>
                   </div>
                 )}
                 <div ref={messagesEndRef} />
               </div>
 
+              {/* Suggested Questions */}
               {suggestedQuestions.length > 0 && messages.length < 5 && (
-                <div style={{ padding: '0 24px 12px 24px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <div style={{ padding: '0 24px 8px 24px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                   {suggestedQuestions.map((q, i) => (
-                    <button key={i} onClick={() => handleSend(q)} style={{ background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.2)', color: '#a5b4fc', padding: '6px 12px', borderRadius: '16px', fontSize: '12px', cursor: 'pointer', transition: 'all 0.2s' }}>
+                    <button key={i} className="suggestion-chip" onClick={() => handleSend(q)}>
                       {q}
                     </button>
                   ))}
                 </div>
               )}
 
-              <div className="input-container glass" style={{ padding: '8px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', position: 'relative' }}>
+              {/* Input Bar */}
+              <div className="input-container glass" style={{ position: 'relative' }}>
                 {isLoading && (
-                  <button onClick={stopGeneration} style={{ position: 'absolute', top: '-40px', left: '50%', transform: 'translateX(-50%)', background: 'rgba(239, 68, 68, 0.2)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '6px 16px', borderRadius: '16px', fontSize: '12px', cursor: 'pointer', zIndex: 10 }}>
-                    Stop Generation
+                  <button className="stop-btn" onClick={stopGeneration}>
+                    Stop generating
                   </button>
                 )}
-                <input 
+                <input
                   className="chat-input"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                  placeholder="Ask me about your data..."
+                  placeholder="Ask about your data..."
                   disabled={isLoading}
                 />
-                <button className="send-btn" onClick={() => handleSend()} disabled={isLoading || !input.trim()}>
-                  <Send size={18} style={{ transform: 'translateX(-1px)' }} />
+                <button
+                  className="send-btn"
+                  onClick={() => handleSend()}
+                  disabled={isLoading || !input.trim()}
+                >
+                  <Send size={16} />
                 </button>
               </div>
             </main>
           </>
         )}
       </div>
-      <style>{`
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
     </>
   );
 };

@@ -1,7 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Upload, Database, FileText, Link as LinkIcon, History, BarChart2 } from 'lucide-react';
-import Particles, { initParticlesEngine } from "@tsparticles/react";
-import { loadSlim } from "@tsparticles/slim";
+import { Upload, Database, FileText, BarChart2, History, FileSpreadsheet, FileType } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface HomeProps {
@@ -17,28 +15,54 @@ const loadingMessages = [
 ];
 
 const demoDatasets = [
-  { name: "E-Commerce Sales", rows: "50,000", icon: <Database size={16}/> },
-  { name: "Healthcare Records", rows: "1.2M", icon: <FileText size={16}/> },
-  { name: "Global Logistics", rows: "300,000", icon: <BarChart2 size={16}/> },
+  { name: "E-Commerce Sales", rows: "50,000", desc: "Orders, revenue, categories", icon: <Database size={18}/> },
+  { name: "Healthcare Records", rows: "1.2M", desc: "Patients, departments, costs", icon: <FileText size={18}/> },
+  { name: "Global Logistics", rows: "300,000", desc: "Shipments, origins, weights", icon: <BarChart2 size={18}/> },
 ];
+
+// Floating elements data
+const floatingItems = [
+  // Icons
+  { type: 'icon', content: 'csv', x: '8%', y: '15%', duration: 14, delay: 0, opacity: 0.1 },
+  { type: 'icon', content: 'xlsx', x: '85%', y: '20%', duration: 16, delay: 2, opacity: 0.08 },
+  { type: 'icon', content: 'chart', x: '75%', y: '70%', duration: 13, delay: 1, opacity: 0.1 },
+  { type: 'icon', content: 'db', x: '12%', y: '75%', duration: 17, delay: 3, opacity: 0.08 },
+  // Keywords
+  { type: 'keyword', content: 'Analytics', x: '18%', y: '30%', duration: 18, delay: 1, opacity: 0.08 },
+  { type: 'keyword', content: 'Revenue', x: '78%', y: '40%', duration: 15, delay: 4, opacity: 0.07 },
+  { type: 'keyword', content: 'KPI', x: '65%', y: '12%', duration: 12, delay: 2, opacity: 0.09 },
+  { type: 'keyword', content: 'Dashboard', x: '25%', y: '85%', duration: 16, delay: 0, opacity: 0.07 },
+  { type: 'keyword', content: 'Insights', x: '88%', y: '60%', duration: 14, delay: 3, opacity: 0.08 },
+  // Code snippets
+  { type: 'snippet', content: 'SELECT * FROM', x: '5%', y: '50%', duration: 20, delay: 5, opacity: 0.06 },
+  { type: 'snippet', content: 'GROUP BY category', x: '70%', y: '85%', duration: 17, delay: 2, opacity: 0.06 },
+  { type: 'snippet', content: 'SUM(revenue)', x: '55%', y: '8%', duration: 15, delay: 4, opacity: 0.07 },
+  { type: 'snippet', content: 'ORDER BY date', x: '30%', y: '65%', duration: 19, delay: 1, opacity: 0.05 },
+];
+
+const FloatingIcon = ({ content }: { content: string }) => {
+  const iconMap: Record<string, React.ReactNode> = {
+    csv: <FileText size={20} />,
+    xlsx: <FileSpreadsheet size={20} />,
+    chart: <BarChart2 size={20} />,
+    db: <Database size={20} />,
+    pdf: <FileType size={20} />,
+  };
+  return <div className="floating-icon">{iconMap[content] || <FileText size={20} />}</div>;
+};
 
 const Home: React.FC<HomeProps> = ({ onFileSelect, isLoading }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [init, setInit] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
   const [recentFiles, setRecentFiles] = useState<string[]>([]);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    initParticlesEngine(async (engine) => {
-      await loadSlim(engine);
-    }).then(() => {
-      setInit(true);
-    });
-
+    setMounted(true);
     const saved = localStorage.getItem('recentDatasets');
     if (saved) {
-      try { setRecentFiles(JSON.parse(saved)); } catch (e) {}
+      try { setRecentFiles(JSON.parse(saved)); } catch (e) { /* ignore */ }
     }
   }, []);
 
@@ -55,22 +79,12 @@ const Home: React.FC<HomeProps> = ({ onFileSelect, isLoading }) => {
     return () => clearInterval(interval);
   }, [isLoading]);
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-
+  const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(true); };
+  const handleDragLeave = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(false); };
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      processFile(e.dataTransfer.files[0]);
-    }
+    if (e.dataTransfer.files?.[0]) processFile(e.dataTransfer.files[0]);
   };
 
   const processFile = (file: File) => {
@@ -89,147 +103,179 @@ const Home: React.FC<HomeProps> = ({ onFileSelect, isLoading }) => {
     } else {
       csvContent = "shipment_id,origin,destination,weight_kg,cost\nS1,NY,LA,500,1200\nS2,TX,CHI,200,400\nS3,MIA,SEA,800,2100\nS4,NY,TX,450,900";
     }
-    
     const blob = new Blob([csvContent], { type: 'text/csv' });
-    const file = new File([blob], `${name.replace(' ', '_').toLowerCase()}.csv`, { type: 'text/csv' });
+    const file = new File([blob], `${name.replace(/ /g, '_').toLowerCase()}.csv`, { type: 'text/csv' });
     processFile(file);
   };
 
   return (
-    <div className="home-view" style={{
+    <div style={{
       width: '100%', height: '100%', display: 'flex', flexDirection: 'column',
-      alignItems: 'center', justifyContent: 'center', position: 'relative', overflowY: 'auto', overflowX: 'hidden'
+      alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden'
     }}>
-      
-      {/* 3D Particle Background */}
-      {init && (
-        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, opacity: 0.4 }}>
-          <Particles
-            id="tsparticles"
-            options={{
-              background: { color: { value: "transparent" } },
-              fpsLimit: 60,
-              particles: {
-                color: { value: "#8b5cf6" },
-                links: { color: "#3b82f6", distance: 150, enable: true, opacity: 0.2, width: 1 },
-                move: { enable: true, speed: 0.8 },
-                number: { density: { enable: true }, value: 80 },
-                opacity: { value: 0.3 },
-                shape: { type: "circle" },
-                size: { value: { min: 1, max: 3 } },
-              },
-            }}
-          />
+
+      {/* Floating Background Elements */}
+      {mounted && floatingItems.map((item, i) => (
+        <div
+          key={i}
+          className={`floating-element ${mounted ? 'visible' : ''}`}
+          style={{
+            left: item.x,
+            top: item.y,
+            '--float-duration': `${item.duration}s`,
+            '--float-delay': `${item.delay}s`,
+            '--float-opacity': item.opacity,
+            animationDelay: `${item.delay}s`,
+          } as React.CSSProperties}
+        >
+          {item.type === 'icon' && <FloatingIcon content={item.content} />}
+          {item.type === 'keyword' && <span className="floating-keyword">{item.content}</span>}
+          {item.type === 'snippet' && <span className="floating-snippet">{item.content}</span>}
         </div>
-      )}
+      ))}
 
       {/* Main Content */}
-      <div style={{ zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '32px', width: '100%', maxWidth: '800px', padding: '40px 20px', margin: 'auto' }}>
-        
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '48px', fontWeight: '800', margin: '0 0 16px 0', color: '#ffffff', lineHeight: '1.2' }}>
-            Enterprise Data Intelligence
-          </div>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '18px', maxWidth: '600px', margin: '0 auto', lineHeight: '1.5' }}>
-            Upload your CSV to instantly generate beautiful dashboards, uncover AI insights, and query your data naturally.
-          </p>
-        </div>
+      <div style={{ zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '36px', width: '100%', maxWidth: '760px', padding: '40px 24px' }}>
 
-        {/* Upload Area */}
-        <div 
+        {/* Hero Text */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          style={{ textAlign: 'center' }}
+        >
+          <h1 style={{
+            fontSize: '44px', fontWeight: '800', lineHeight: '1.15', letterSpacing: '-0.02em',
+            background: 'linear-gradient(135deg, #f1f5f9, #a78bfa, #6366f1)',
+            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+            marginBottom: '16px'
+          }}>
+            Enterprise Data Intelligence
+          </h1>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '16px', maxWidth: '520px', margin: '0 auto', lineHeight: '1.6' }}>
+            Upload your CSV to generate beautiful dashboards, uncover AI insights, and query data naturally.
+          </p>
+        </motion.div>
+
+        {/* Upload Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.15 }}
+          whileHover={!isLoading ? { y: -6, scale: 1.01 } : {}}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           onClick={() => !isLoading && fileInputRef.current?.click()}
-          className="glass"
-          style={{
-            border: `2px dashed ${isDragging ? '#8b5cf6' : 'rgba(255,255,255,0.1)'}`,
-            padding: '48px',
-            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px',
-            cursor: isLoading ? 'default' : 'pointer',
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            width: '100%',
-            transform: isDragging ? 'scale(1.02)' : 'scale(1)',
-            boxShadow: isDragging ? '0 0 40px rgba(139, 92, 246, 0.2)' : 'none'
-          }}
+          className={`glass upload-card ${isDragging ? 'dragging' : ''}`}
         >
           {isLoading ? (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px' }}>
-              <div className="spinner" style={{
-                width: '40px', height: '40px', borderRadius: '50%',
-                border: '3px solid rgba(139, 92, 246, 0.2)', borderTopColor: '#8b5cf6',
-                animation: 'spin 1s linear infinite'
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', zIndex: 1 }}>
+              <div style={{
+                width: '44px', height: '44px', borderRadius: '50%',
+                border: '3px solid rgba(99, 102, 241, 0.15)', borderTopColor: 'var(--accent-primary)',
+                animation: 'spin 0.8s linear infinite'
               }} />
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '18px', fontWeight: '600', color: '#fff' }}>Processing Dataset...</span>
-                <motion.span 
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '16px', fontWeight: '600', color: '#fff', marginBottom: '8px' }}>Processing Dataset...</div>
+                <motion.div
                   key={loadingStep}
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  style={{ color: 'var(--text-secondary)', fontSize: '14px' }}
+                  style={{ color: 'var(--text-secondary)', fontSize: '13px' }}
                 >
                   {loadingMessages[loadingStep]}
-                </motion.span>
+                </motion.div>
               </div>
             </div>
           ) : (
             <>
-              <div style={{ background: 'rgba(139, 92, 246, 0.1)', padding: '20px', borderRadius: '50%' }}>
-                <Upload size={40} color="#8b5cf6" />
+              <div style={{
+                background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.1))',
+                padding: '20px', borderRadius: '50%', zIndex: 1
+              }}>
+                <Upload size={36} color="var(--accent-tertiary)" />
               </div>
-              <div style={{ textAlign: 'center' }}>
-                <h3 style={{ fontSize: '22px', fontWeight: '600', margin: '0 0 8px 0' }}>{isDragging ? 'Drop it like it\'s hot!' : 'Click or drag CSV to upload'}</h3>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '14px', margin: 0 }}>Supports up to 500MB • Secure local processing</p>
-              </div>
-              
-              <div style={{ display: 'flex', gap: '16px', marginTop: '16px' }}>
-                <button onClick={(e) => { e.stopPropagation(); }} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '8px 16px', borderRadius: '8px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                  <LinkIcon size={14}/> URL
-                </button>
-                <button onClick={(e) => { e.stopPropagation(); }} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '8px 16px', borderRadius: '8px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                  <Database size={14}/> DB Connect
-                </button>
+              <div style={{ textAlign: 'center', zIndex: 1 }}>
+                <h3 style={{ fontSize: '18px', fontWeight: '600', margin: '0 0 6px 0', color: '#fff' }}>
+                  {isDragging ? 'Drop your file here' : 'Click or drag CSV to upload'}
+                </h3>
+                <p style={{ color: 'var(--text-muted)', fontSize: '13px', margin: 0 }}>
+                  Supports up to 500MB • Secure local processing
+                </p>
               </div>
             </>
           )}
-          <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept=".csv" onChange={(e) => { if (e.target.files?.[0]) processFile(e.target.files[0]); }} disabled={isLoading} />
-        </div>
+          <input
+            type="file" ref={fileInputRef} style={{ display: 'none' }}
+            accept=".csv" onChange={(e) => { if (e.target.files?.[0]) processFile(e.target.files[0]); }}
+            disabled={isLoading}
+          />
+        </motion.div>
 
-        {/* Bottom Bento Box (History & Demos) */}
+        {/* Bottom Grid: Recent + Demos */}
         {!isLoading && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '20px', width: '100%' }}>
-            
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '16px', width: '100%' }}
+          >
             {/* Recent Files */}
-            <div className="glass" style={{ padding: '24px', borderRadius: '16px' }}>
-              <h4 style={{ margin: '0 0 16px 0', fontSize: '14px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '8px' }}><History size={16}/> Recent</h4>
+            <div className="glass" style={{ padding: '20px', borderRadius: 'var(--radius-lg)' }}>
+              <h4 style={{
+                margin: '0 0 14px 0', fontSize: '11px', fontWeight: '600', letterSpacing: '0.5px',
+                textTransform: 'uppercase', color: 'var(--text-muted)',
+                display: 'flex', alignItems: 'center', gap: '8px'
+              }}>
+                <History size={14}/> Recent
+              </h4>
               {recentFiles.length > 0 ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {recentFiles.map((file, i) => (
-                    <div key={i} style={{ fontSize: '13px', color: '#fff', padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'} onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}>
+                    <div key={i} style={{
+                      fontSize: '13px', color: 'var(--text-secondary)', padding: '10px 12px',
+                      background: 'rgba(255,255,255,0.02)', borderRadius: 'var(--radius-sm)',
+                      cursor: 'pointer', transition: 'all 0.2s', border: '1px solid transparent'
+                    }}
+                    onMouseOver={e => { e.currentTarget.style.background = 'rgba(99,102,241,0.06)'; e.currentTarget.style.borderColor = 'rgba(99,102,241,0.1)'; }}
+                    onMouseOut={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; e.currentTarget.style.borderColor = 'transparent'; }}
+                    >
                       {file}
                     </div>
                   ))}
                 </div>
               ) : (
-                <p style={{ fontSize: '13px', color: 'var(--text-secondary)', margin: 0 }}>No recent datasets</p>
+                <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: 0 }}>No recent datasets</p>
               )}
             </div>
 
             {/* Demo Datasets */}
-            <div className="glass" style={{ padding: '24px', borderRadius: '16px' }}>
-              <h4 style={{ margin: '0 0 16px 0', fontSize: '14px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '8px' }}><Database size={16}/> Demo Datasets</h4>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px' }}>
+            <div className="glass" style={{ padding: '20px', borderRadius: 'var(--radius-lg)' }}>
+              <h4 style={{
+                margin: '0 0 14px 0', fontSize: '11px', fontWeight: '600', letterSpacing: '0.5px',
+                textTransform: 'uppercase', color: 'var(--text-muted)',
+                display: 'flex', alignItems: 'center', gap: '8px'
+              }}>
+                <Database size={14}/> Try a Demo
+              </h4>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
                 {demoDatasets.map((demo, i) => (
-                  <div key={i} onClick={() => loadDemoDataset(demo.name)} style={{ padding: '16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', cursor: 'pointer', transition: 'all 0.2s' }} onMouseOver={e => e.currentTarget.style.borderColor = '#8b5cf6'} onMouseOut={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)'}>
-                    <div style={{ color: '#a5b4fc', marginBottom: '8px' }}>{demo.icon}</div>
+                  <motion.div
+                    key={i}
+                    whileHover={{ y: -4, scale: 1.02 }}
+                    onClick={() => loadDemoDataset(demo.name)}
+                    className="demo-card"
+                  >
+                    <div style={{ color: 'var(--accent-tertiary)', marginBottom: '10px' }}>{demo.icon}</div>
                     <div style={{ fontSize: '13px', fontWeight: '600', color: '#fff', marginBottom: '4px' }}>{demo.name}</div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{demo.rows} rows</div>
-                  </div>
+                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', lineHeight: '1.4' }}>{demo.desc}</div>
+                    <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '8px', opacity: 0.6 }}>{demo.rows} rows</div>
+                  </motion.div>
                 ))}
               </div>
             </div>
-
-          </div>
+          </motion.div>
         )}
 
       </div>

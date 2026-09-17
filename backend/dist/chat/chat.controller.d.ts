@@ -1,4 +1,4 @@
-import { Response } from 'express';
+import type { Response } from 'express';
 import { ChatService } from './chat.service.js';
 export declare class ChatController {
     private readonly chatService;
