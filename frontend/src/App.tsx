@@ -65,15 +65,8 @@ const App: React.FC = () => {
     const botMsgId = (Date.now() + 1).toString();
     setMessages(prev => [...prev, { id: botMsgId, role: 'bot', content: '' }]);
 
-    // Scroll to bottom safely using the container's scrollTo
-    setTimeout(() => {
-      if (messagesContainerRef.current) {
-        messagesContainerRef.current.scrollTo({
-          top: messagesContainerRef.current.scrollHeight,
-          behavior: 'smooth'
-        });
-      }
-    }, 100);
+    // Removed automatic scroll to prevent Safari layout shifting bugs.
+    // The user will scroll manually if they need to see the bottom.
 
     const abortController = new AbortController();
     abortControllerRef.current = abortController;

@@ -1,4 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 /* ─── Light Theme Design Tokens ─── */
 :root {
@@ -751,3 +755,20 @@ body {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
+</style>
+</head>
+<body>
+  <div id="root">
+    <div class="app-container">
+      <aside class="sidebar glass">
+        <div style="flex:1"></div>
+        <button>Clear</button>
+      </aside>
+      <main class="main-chat">
+        <div class="messages-container"></div>
+        <div class="input-container glass">Input</div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
