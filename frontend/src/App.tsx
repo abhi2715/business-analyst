@@ -52,9 +52,6 @@ const App: React.FC = () => {
     const messageText = overrideInput || input;
     if ((!messageText.trim() && !selectedFile) || isLoading) return;
 
-    // User just sent a message, so reset scroll lock so we auto-scroll to their message
-    userScrolledUpRef.current = false;
-
     const userMsg: Message = {
       id: Date.now().toString(),
       role: 'user',
