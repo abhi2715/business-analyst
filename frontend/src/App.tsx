@@ -30,6 +30,8 @@ const App: React.FC = () => {
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const userScrolledUpRef = useRef(false);
 
   useEffect(() => {
     initDuckDB().then(database => {
@@ -38,14 +40,29 @@ const App: React.FC = () => {
     }).catch(e => console.error(e));
   }, []);
 
-  const scrollToBottom = () => {
+  const scrollToBottom = (force = false) => {
+    if (!force && userScrolledUpRef.current) return;
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  // Track whether the user has manually scrolled up
+  useEffect(() => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      // If user is within 120px of the bottom, consider them "at bottom"
+      userScrolledUpRef.current = scrollHeight - scrollTop - clientHeight > 120;
+    };
+    container.addEventListener('scroll', handleScroll);
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, [view]); // re-attach when view changes
 
   const handleReset = () => {
     setView('home');
     setSelectedFile(null);
     setDashboardData(null);
+    userScrolledUpRef.current = false;
     setMessages([
       { id: '1', role: 'bot', content: 'Hello! I\'m your AI Data Analyst. Upload a dataset and I\'ll help you explore it.' }
     ]);
@@ -56,6 +73,9 @@ const App: React.FC = () => {
   const handleSend = async (overrideInput?: string) => {
     const messageText = overrideInput || input;
     if ((!messageText.trim() && !selectedFile) || isLoading) return;
+
+    // User just sent a message, so reset scroll lock so we auto-scroll to their message
+    userScrolledUpRef.current = false;
 
     const userMsg: Message = {
       id: Date.now().toString(),
@@ -304,7 +324,7 @@ ${response.data.totalProfit ? `- Total Profit: ${response.data.totalProfit}` : '
 
             {/* Main Chat Area */}
             <main className="main-chat glass">
-              <div className="messages-container">
+              <div className="messages-container" ref={messagesContainerRef}>
                 {messages.filter(m => m.id !== '0').map((msg) => (
                   <div key={msg.id} className={`message-bubble ${msg.role}`}>
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
