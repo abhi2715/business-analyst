@@ -65,9 +65,14 @@ const App: React.FC = () => {
     const botMsgId = (Date.now() + 1).toString();
     setMessages(prev => [...prev, { id: botMsgId, role: 'bot', content: '' }]);
 
-    // Scroll to bottom once when user sends — NOT during streaming
+    // Scroll to bottom safely using the container's scrollTo
     setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      if (messagesContainerRef.current) {
+        messagesContainerRef.current.scrollTo({
+          top: messagesContainerRef.current.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
     }, 100);
 
     const abortController = new AbortController();
