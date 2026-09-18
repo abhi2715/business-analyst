@@ -31,7 +31,6 @@ const App: React.FC = () => {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
-  const userScrolledUpRef = useRef(false);
 
   useEffect(() => {
     initDuckDB().then(database => {
@@ -40,35 +39,14 @@ const App: React.FC = () => {
     }).catch(e => console.error(e));
   }, []);
 
-  const scrollToBottom = (force = false) => {
-    if (!force && userScrolledUpRef.current) return;
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  // Track whether the user has manually scrolled up
-  useEffect(() => {
-    const container = messagesContainerRef.current;
-    if (!container) return;
-    const handleScroll = () => {
-      const { scrollTop, scrollHeight, clientHeight } = container;
-      // If user is within 120px of the bottom, consider them "at bottom"
-      userScrolledUpRef.current = scrollHeight - scrollTop - clientHeight > 120;
-    };
-    container.addEventListener('scroll', handleScroll);
-    return () => container.removeEventListener('scroll', handleScroll);
-  }, [view]); // re-attach when view changes
-
   const handleReset = () => {
     setView('home');
     setSelectedFile(null);
     setDashboardData(null);
-    userScrolledUpRef.current = false;
     setMessages([
       { id: '1', role: 'bot', content: 'Hello! I\'m your AI Data Analyst. Upload a dataset and I\'ll help you explore it.' }
     ]);
   };
-
-  useEffect(() => { scrollToBottom(); }, [messages]);
 
   const handleSend = async (overrideInput?: string) => {
     const messageText = overrideInput || input;
@@ -89,6 +67,11 @@ const App: React.FC = () => {
 
     const botMsgId = (Date.now() + 1).toString();
     setMessages(prev => [...prev, { id: botMsgId, role: 'bot', content: '' }]);
+
+    // Scroll to bottom once when user sends — NOT during streaming
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
 
     const abortController = new AbortController();
     abortControllerRef.current = abortController;
@@ -322,8 +305,8 @@ ${response.data.totalProfit ? `- Total Profit: ${response.data.totalProfit}` : '
               </div>
             </aside>
 
-            {/* Main Chat Area */}
-            <main className="main-chat glass">
+            {/* Main Chat Area — no glass so scrollbar reaches right edge */}
+            <main className="main-chat">
               <div className="messages-container" ref={messagesContainerRef}>
                 {messages.filter(m => m.id !== '0').map((msg) => (
                   <div key={msg.id} className={`message-bubble ${msg.role}`}>
